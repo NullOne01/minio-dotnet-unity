@@ -15,19 +15,20 @@
  * limitations under the License.
  */
 
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
-namespace Minio.Credentials;
-
-public class JsonWebToken
+namespace Minio.Credentials
 {
-    public JsonWebToken(string token, uint expiry)
+    public class JsonWebToken
     {
-        AccessToken = token;
-        Expiry = expiry;
+        public JsonWebToken(string token, uint expiry)
+        {
+            AccessToken = token;
+            Expiry = expiry;
+        }
+
+        [JsonProperty("access_token")] public string AccessToken { get; set; }
+
+        [JsonProperty("expires_in")] public uint Expiry { get; set; }
     }
-
-    [JsonPropertyName("access_token")] public string AccessToken { get; set; }
-
-    [JsonPropertyName("expires_in")] public uint Expiry { get; set; }
 }

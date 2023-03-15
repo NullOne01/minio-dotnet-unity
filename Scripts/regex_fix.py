@@ -12,7 +12,7 @@ for filename in glob.iglob(root_dir + '**/*.cs', recursive=True):
         content = f.read()
         content_new = content
         content_new = re.sub(r'(namespace [^;]*)(;)(.*)', r'\1 {\3 \n}', content, flags=re.S)
-    
+
     new_filename = f"{filename}"
     print(new_filename)
     with open(new_filename, 'w') as fw:

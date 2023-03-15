@@ -1,22 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<AssemblyName>Minio</AssemblyName>
-		<RootNamespace>Minio</RootNamespace>
-		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-		<DebugType>embedded</DebugType>
-		<AssemblyOriginatorKeyFile>..\Minio.snk</AssemblyOriginatorKeyFile>
-		<SignAssembly>true</SignAssembly>
-		<PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
-		<Description>MinIO .NET SDK for Amazon S3 Compatible Cloud Storage.</Description>
-		<Product>Minio</Product>
-	</PropertyGroup>
+    <PropertyGroup>
+        <AssemblyName>Minio</AssemblyName>
+        <RootNamespace>Minio</RootNamespace>
+        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <DebugType>embedded</DebugType>
+        <AssemblyOriginatorKeyFile>..\Minio.snk</AssemblyOriginatorKeyFile>
+        <SignAssembly>true</SignAssembly>
+        <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
+        <Description>MinIO .NET SDK for Amazon S3 Compatible Cloud Storage.</Description>
+        <Product>Minio</Product>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Crc32.NET" Version="1.2.0" />
-		<!--
-		<PackageReference Include="System.IO.Hashing" Version="7.0.0" />
-		-->
-		<PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Crc32.NET" Version="1.2.0"/>
+        <!--
+        <PackageReference Include="System.IO.Hashing" Version="7.0.0" />
+        -->
+        <PackageReference Include="System.Reactive.Linq" Version="5.0.0"/>
+    </ItemGroup>
 
 </Project>

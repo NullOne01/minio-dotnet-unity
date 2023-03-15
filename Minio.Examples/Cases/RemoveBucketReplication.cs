@@ -14,27 +14,31 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-public static class RemoveBucketReplication
+namespace Minio.Examples.Cases
 {
-    // Remove Replication configuration set for the bucket
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name")
+    public static class RemoveBucketReplication
     {
-        try
+        // Remove Replication configuration set for the bucket
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name")
         {
-            Console.WriteLine("Running example for API: RemoveBucketReplication");
-            await minio.RemoveBucketReplicationAsync(
-                new RemoveBucketReplicationArgs()
-                    .WithBucket(bucketName)
-            ).ConfigureAwait(false);
-            Console.WriteLine($"Bucket Replication removed for bucket {bucketName}.");
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Bucket]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: RemoveBucketReplication");
+                await minio.RemoveBucketReplicationAsync(
+                    new RemoveBucketReplicationArgs()
+                        .WithBucket(bucketName)
+                ).ConfigureAwait(false);
+                Console.WriteLine($"Bucket Replication removed for bucket {bucketName}.");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Bucket]  Exception: {e}");
+            }
         }
     }
 }

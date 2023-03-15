@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using Minio.DataModel.Tags;
 
@@ -25,35 +27,36 @@ using Minio.DataModel.Tags;
  * https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html
  */
 
-namespace Minio.DataModel.Replication;
-
-[Serializable]
-[XmlRoot(ElementName = "And")]
-public class AndOperator
+namespace Minio.DataModel.Replication
 {
-    public AndOperator()
+    [Serializable]
+    [XmlRoot(ElementName = "And")]
+    public class AndOperator
     {
+        public AndOperator()
+        {
+        }
+
+        public AndOperator(string prefix, Tagging tagObj)
+        {
+            Prefix = prefix;
+            Tags = new List<Tag>(tagObj.TaggingSet.Tag);
+        }
+
+        public AndOperator(string prefix, List<Tag> tag)
+        {
+            Prefix = prefix;
+            Tags = tag;
+        }
+
+        public AndOperator(string prefix, Dictionary<string, string> tags)
+        {
+            Prefix = prefix;
+            foreach (var item in tags) Tags.Add(new Tag(item.Key, item.Value));
+        }
+
+        [XmlElement("Prefix")] internal string Prefix { get; set; }
+
+        [XmlElement("Tag")] public List<Tag> Tags { get; set; }
     }
-
-    public AndOperator(string prefix, Tagging tagObj)
-    {
-        Prefix = prefix;
-        Tags = new List<Tag>(tagObj.TaggingSet.Tag);
-    }
-
-    public AndOperator(string prefix, List<Tag> tag)
-    {
-        Prefix = prefix;
-        Tags = tag;
-    }
-
-    public AndOperator(string prefix, Dictionary<string, string> tags)
-    {
-        Prefix = prefix;
-        foreach (var item in tags) Tags.Add(new Tag(item.Key, item.Value));
-    }
-
-    [XmlElement("Prefix")] internal string Prefix { get; set; }
-
-    [XmlElement("Tag")] public List<Tag> Tags { get; set; }
 }

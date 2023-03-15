@@ -14,45 +14,48 @@
  * limitations under the License.
  */
 
+using System;
 using System.Text;
+using System.Threading.Tasks;
 using Minio.DataModel.Tracing;
 
-namespace Minio.Examples.Cases;
-
-public static class CustomRequestLogger
+namespace Minio.Examples.Cases
 {
-    // Check if a bucket exists
-    public static async Task Run(IMinioClient minio)
+    public static class CustomRequestLogger
     {
-        try
+        // Check if a bucket exists
+        public static async Task Run(IMinioClient minio)
         {
-            Console.WriteLine("Running example for: set custom request logger");
-            minio.SetTraceOn(new MyRequestLogger());
-            await minio.ListBucketsAsync().ConfigureAwait(false);
-            minio.SetTraceOff();
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Bucket]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for: set custom request logger");
+                minio.SetTraceOn(new MyRequestLogger());
+                await minio.ListBucketsAsync().ConfigureAwait(false);
+                minio.SetTraceOff();
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Bucket]  Exception: {e}");
+            }
         }
     }
-}
 
-internal class MyRequestLogger : IRequestLogger
-{
-    public void LogRequest(RequestToLog requestToLog, ResponseToLog responseToLog, double durationMs)
+    internal class MyRequestLogger : IRequestLogger
     {
-        var sb = new StringBuilder();
+        public void LogRequest(RequestToLog requestToLog, ResponseToLog responseToLog, double durationMs)
+        {
+            var sb = new StringBuilder();
 
-        sb.AppendLine("My logger says:");
-        sb.Append("statusCode: ");
-        sb.AppendLine(responseToLog.statusCode.ToString());
-        sb.AppendLine();
+            sb.AppendLine("My logger says:");
+            sb.Append("statusCode: ");
+            sb.AppendLine(responseToLog.statusCode.ToString());
+            sb.AppendLine();
 
-        sb.AppendLine("Response: ");
-        sb.Append(responseToLog.content);
+            sb.AppendLine("Response: ");
+            sb.Append(responseToLog.content);
 
-        Console.WriteLine(sb.ToString());
+            Console.WriteLine(sb.ToString());
+        }
     }
 }

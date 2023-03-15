@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-public class SelectObjectInputSerialization
+namespace Minio.DataModel
 {
-    public SelectCompressionType CompressionType { get; set; }
+    [Serializable]
+    public class SelectObjectInputSerialization
+    {
+        public SelectCompressionType CompressionType { get; set; }
 
-    [XmlElement("Parquet")] public ParquetInputOptions Parquet { get; set; }
+        [XmlElement("Parquet")] public ParquetInputOptions Parquet { get; set; }
 
-    [XmlElement("CSV")] public CSVInputOptions CSV { get; set; }
+        [XmlElement("CSV")] public CSVInputOptions CSV { get; set; }
 
-    [XmlElement("JSON")] public JSONInputOptions JSON { get; set; }
+        [XmlElement("JSON")] public JSONInputOptions JSON { get; set; }
+    }
 }

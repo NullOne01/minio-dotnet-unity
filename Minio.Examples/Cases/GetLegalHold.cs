@@ -14,31 +14,35 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-internal static class GetLegalHold
+namespace Minio.Examples.Cases
 {
-    // Get Legal Hold status a object
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name",
-        string objectName = "my-object-name",
-        string versionId = null)
+    internal static class GetLegalHold
     {
-        try
+        // Get Legal Hold status a object
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name",
+            string objectName = "my-object-name",
+            string versionId = null)
         {
-            Console.WriteLine("Running example for API: GetLegalHold, ");
-            var args = new GetObjectLegalHoldArgs()
-                .WithBucket(bucketName)
-                .WithObject(objectName)
-                .WithVersionId(versionId);
-            var enabled = await minio.GetObjectLegalHoldAsync(args).ConfigureAwait(false);
-            Console.WriteLine("LegalHold Configuration STATUS for " + bucketName + "/" + objectName +
-                              (!string.IsNullOrEmpty(versionId) ? " with Version ID " + versionId : " ") +
-                              " : " + (enabled ? "ON" : "OFF"));
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Object]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: GetLegalHold, ");
+                var args = new GetObjectLegalHoldArgs()
+                    .WithBucket(bucketName)
+                    .WithObject(objectName)
+                    .WithVersionId(versionId);
+                var enabled = await minio.GetObjectLegalHoldAsync(args).ConfigureAwait(false);
+                Console.WriteLine("LegalHold Configuration STATUS for " + bucketName + "/" + objectName +
+                                  (!string.IsNullOrEmpty(versionId) ? " with Version ID " + versionId : " ") +
+                                  " : " + (enabled ? "ON" : "OFF"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Object]  Exception: {e}");
+            }
         }
     }
 }

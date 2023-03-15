@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-namespace Minio.DataModel;
+using System;
 
-[Serializable]
-public class ParquetInputOptions
+namespace Minio.DataModel
 {
+    [Serializable]
+    public class ParquetInputOptions
+    {
+    }
 }

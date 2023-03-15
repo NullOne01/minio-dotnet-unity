@@ -14,40 +14,43 @@
  * limitations under the License.
  */
 
-namespace Minio;
+using System.Collections.Generic;
 
-public abstract class BucketArgs<T> : Args
-    where T : BucketArgs<T>
+namespace Minio
 {
-    protected const string BucketForceDeleteKey = "X-Minio-Force-Delete";
-
-    public bool IsBucketCreationRequest { get; set; }
-
-    internal string BucketName { get; set; }
-
-    internal Dictionary<string, string> Headers { get; set; } = new();
-
-    public T WithBucket(string bucket)
+    public abstract class BucketArgs<T> : Args
+        where T : BucketArgs<T>
     {
-        BucketName = bucket;
-        return (T)this;
-    }
+        protected const string BucketForceDeleteKey = "X-Minio-Force-Delete";
 
-    public T WithHeaders(Dictionary<string, string> headers)
-    {
-        if (headers == null || headers.Count <= 0) return (T)this;
-        Headers ??= new Dictionary<string, string>();
-        foreach (var key in headers.Keys)
+        public bool IsBucketCreationRequest { get; set; }
+
+        internal string BucketName { get; set; }
+
+        internal Dictionary<string, string> Headers { get; set; } = new();
+
+        public T WithBucket(string bucket)
         {
-            Headers.Remove(key);
-            Headers[key] = headers[key];
+            BucketName = bucket;
+            return (T)this;
         }
 
-        return (T)this;
-    }
+        public T WithHeaders(Dictionary<string, string> headers)
+        {
+            if (headers == null || headers.Count <= 0) return (T)this;
+            Headers ??= new Dictionary<string, string>();
+            foreach (var key in headers.Keys)
+            {
+                Headers.Remove(key);
+                Headers[key] = headers[key];
+            }
 
-    internal virtual void Validate()
-    {
-        Utils.ValidateBucketName(BucketName);
+            return (T)this;
+        }
+
+        internal virtual void Validate()
+        {
+            Utils.ValidateBucketName(BucketName);
+        }
     }
 }

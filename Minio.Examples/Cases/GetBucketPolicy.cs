@@ -14,27 +14,31 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-internal static class GetBucketPolicy
+namespace Minio.Examples.Cases
 {
-    // Get bucket policy 
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name",
-        string prefix = "")
+    internal static class GetBucketPolicy
     {
-        try
+        // Get bucket policy 
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name",
+            string prefix = "")
         {
-            var args = new GetPolicyArgs()
-                .WithBucket(bucketName);
-            Console.WriteLine("Running example for API: GetPolicyAsync");
-            var policyJson = await minio.GetPolicyAsync(args).ConfigureAwait(false);
-            Console.WriteLine($"Current Policy is {policyJson} for bucket {bucketName}");
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Bucket]  Exception: {e}");
+            try
+            {
+                var args = new GetPolicyArgs()
+                    .WithBucket(bucketName);
+                Console.WriteLine("Running example for API: GetPolicyAsync");
+                var policyJson = await minio.GetPolicyAsync(args).ConfigureAwait(false);
+                Console.WriteLine($"Current Policy is {policyJson} for bucket {bucketName}");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Bucket]  Exception: {e}");
+            }
         }
     }
 }

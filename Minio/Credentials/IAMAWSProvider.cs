@@ -15,10 +15,16 @@
  * limitations under the License.
  */
 
+using System;
+using System.IO;
+using System.Linq;
 using System.Net;
-using System.Text.Json;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Minio.DataModel;
 using Minio.Exceptions;
+using Minio.Helper;
+using Newtonsoft.Json;
 
 /*
  * IAM roles for Amazon EC2
@@ -26,223 +32,226 @@ using Minio.Exceptions;
  * The Credential provider for attaching an IAM rule.
  */
 
-namespace Minio.Credentials;
-
-public class IAMAWSProvider : EnvironmentProvider
+namespace Minio.Credentials
 {
-    public IAMAWSProvider()
+    public class IAMAWSProvider : EnvironmentProvider
     {
-        Minio_Client = null;
-    }
-
-    public IAMAWSProvider(string endpoint, MinioClient client)
-    {
-        if (!string.IsNullOrWhiteSpace(endpoint))
+        public IAMAWSProvider()
         {
-            CustomEndPoint = new Uri(endpoint);
-            if (string.IsNullOrWhiteSpace(CustomEndPoint.Authority))
-                throw new ArgumentNullException("Endpoint field " + nameof(CustomEndPoint) + " is invalid.");
+            Minio_Client = null;
         }
 
-        Minio_Client = client ??
-                       throw new ArgumentException("MinioClient reference field " +
-                                                   nameof(Minio_Client) + " cannot be null.");
-        CustomEndPoint = new Uri(endpoint);
-    }
-
-    internal Uri CustomEndPoint { get; set; }
-    internal AccessCredentials Credentials { get; set; }
-    internal MinioClient Minio_Client { get; set; }
-
-    public override AccessCredentials GetCredentials()
-    {
-        Validate();
-        var url = CustomEndPoint;
-        if (CustomEndPoint == null)
+        public IAMAWSProvider(string endpoint, MinioClient client)
         {
-            var region = Environment.GetEnvironmentVariable("AWS_REGION");
-            if (string.IsNullOrWhiteSpace(region))
-                url = RequestUtil.MakeTargetURL("sts.amazonaws.com", true);
-            else
-                url = RequestUtil.MakeTargetURL("sts." + region + ".amazonaws.com", true);
-        }
-
-        ClientProvider provider = new WebIdentityProvider()
-            .WithSTSEndpoint(url)
-            .WithRoleAction("AssumeRoleWithWebIdentity")
-            .WithDurationInSeconds(null)
-            .WithPolicy(null)
-            .WithRoleARN(Environment.GetEnvironmentVariable("AWS_ROLE_ARN"))
-            .WithRoleSessionName(Environment.GetEnvironmentVariable("AWS_ROLE_SESSION_NAME"));
-        Credentials = provider.GetCredentials();
-        return Credentials;
-    }
-
-    internal AccessCredentials GetAccessCredentials(string tokenFile)
-    {
-        Validate();
-        var url = CustomEndPoint;
-        var urlStr = url.Authority;
-        if (url == null || string.IsNullOrWhiteSpace(urlStr))
-        {
-            var region = Environment.GetEnvironmentVariable("AWS_REGION");
-            urlStr = region == null ? "https://sts.amazonaws.com" : "https://sts." + region + ".amazonaws.com";
-            url = new Uri(urlStr);
-        }
-
-        ClientProvider provider = new WebIdentityProvider()
-            .WithJWTSupplier(() =>
+            if (!string.IsNullOrWhiteSpace(endpoint))
             {
-                var tokenContents = File.ReadAllText(tokenFile);
-                return new JsonWebToken(tokenContents, 0);
-            })
-            .WithSTSEndpoint(url)
-            .WithDurationInSeconds(null)
-            .WithPolicy(null)
-            .WithRoleARN(Environment.GetEnvironmentVariable("AWS_ROLE_ARN"))
-            .WithRoleSessionName(Environment.GetEnvironmentVariable("AWS_ROLE_SESSION_NAME"));
-        Credentials = provider.GetCredentials();
-        return Credentials;
-    }
+                CustomEndPoint = new Uri(endpoint);
+                if (string.IsNullOrWhiteSpace(CustomEndPoint.Authority))
+                    throw new ArgumentNullException("Endpoint field " + nameof(CustomEndPoint) + " is invalid.");
+            }
 
-    public async Task<AccessCredentials> GetAccessCredentials(Uri url)
-    {
-        ArgumentNullException.ThrowIfNull(url);
+            Minio_Client = client ??
+                           throw new ArgumentException("MinioClient reference field " +
+                                                       nameof(Minio_Client) + " cannot be null.");
+            CustomEndPoint = new Uri(endpoint);
+        }
 
-        Validate();
-        using var request = new HttpRequestMessage(HttpMethod.Get, url.ToString());
+        internal Uri CustomEndPoint { get; set; }
+        internal AccessCredentials Credentials { get; set; }
+        internal MinioClient Minio_Client { get; set; }
 
-        var requestBuilder = new HttpRequestMessageBuilder(HttpMethod.Get, url);
-        requestBuilder.AddQueryParameter("location", "");
-
-        using var response =
-            await Minio_Client.ExecuteTaskAsync(Enumerable.Empty<ApiResponseErrorHandlingDelegate>(), requestBuilder)
-                .ConfigureAwait(false);
-        if (string.IsNullOrWhiteSpace(response.Content) ||
-            !HttpStatusCode.OK.Equals(response.StatusCode))
-            throw new CredentialsProviderException("IAMAWSProvider",
-                "Credential Get operation failed with HTTP Status code: " + response.StatusCode);
-        /*
-JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-{
-   MissingMemberHandling = MissingMemberHandling.Error,
-   ContractResolver = new CamelCasePropertyNamesContractResolver(),
-   Error = null
-};*/
-
-        var credentials = JsonSerializer.Deserialize<ECSCredentials>(response.Content);
-        if (credentials.Code?.Equals("success", StringComparison.OrdinalIgnoreCase) == false)
-            throw new CredentialsProviderException("IAMAWSProvider",
-                "Credential Get operation failed with code: " + credentials.Code + " and message " +
-                credentials.Message);
-
-        Credentials = credentials.GetAccessCredentials();
-        return Credentials;
-    }
-
-    public override async Task<AccessCredentials> GetCredentialsAsync()
-    {
-        if (Credentials?.AreExpired() == false) return Credentials;
-
-        var url = CustomEndPoint;
-        var awsTokenFile = Environment.GetEnvironmentVariable("AWS_WEB_IDENTITY_TOKEN_FILE");
-        if (!string.IsNullOrWhiteSpace(awsTokenFile))
+        public override AccessCredentials GetCredentials()
         {
-            Credentials = GetAccessCredentials(awsTokenFile);
+            Validate();
+            var url = CustomEndPoint;
+            if (CustomEndPoint == null)
+            {
+                var region = Environment.GetEnvironmentVariable("AWS_REGION");
+                if (string.IsNullOrWhiteSpace(region))
+                    url = RequestUtil.MakeTargetURL("sts.amazonaws.com", true);
+                else
+                    url = RequestUtil.MakeTargetURL("sts." + region + ".amazonaws.com", true);
+            }
+
+            ClientProvider provider = new WebIdentityProvider()
+                .WithSTSEndpoint(url)
+                .WithRoleAction("AssumeRoleWithWebIdentity")
+                .WithDurationInSeconds(null)
+                .WithPolicy(null)
+                .WithRoleARN(Environment.GetEnvironmentVariable("AWS_ROLE_ARN"))
+                .WithRoleSessionName(Environment.GetEnvironmentVariable("AWS_ROLE_SESSION_NAME"));
+            Credentials = provider.GetCredentials();
             return Credentials;
         }
 
-        var containerRelativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
-        var containerFullUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_FULL_URI");
-        var isURLEmpty = url == null;
-        if (!string.IsNullOrWhiteSpace(containerRelativeUri) && isURLEmpty)
+        internal AccessCredentials GetAccessCredentials(string tokenFile)
         {
-            url = RequestUtil.MakeTargetURL("169.254.170.2" + "/" + containerRelativeUri, false);
-        }
-        else if (!string.IsNullOrWhiteSpace(containerFullUri) && isURLEmpty)
-        {
-            var fullUri = new Uri(containerFullUri);
-            url = RequestUtil.MakeTargetURL(fullUri.AbsolutePath, fullUri.Scheme == "https");
-        }
-        else
-        {
-            url = await GetIamRoleNamedURL().ConfigureAwait(false);
-        }
+            Validate();
+            var url = CustomEndPoint;
+            var urlStr = url.Authority;
+            if (url == null || string.IsNullOrWhiteSpace(urlStr))
+            {
+                var region = Environment.GetEnvironmentVariable("AWS_REGION");
+                urlStr = region == null ? "https://sts.amazonaws.com" : "https://sts." + region + ".amazonaws.com";
+                url = new Uri(urlStr);
+            }
 
-        Credentials = await GetAccessCredentials(url).ConfigureAwait(false);
-        return Credentials;
-    }
-
-    public async Task<string> GetIamRoleNameAsync(Uri url)
-    {
-        Validate();
-        var requestBuilder = new HttpRequestMessageBuilder(HttpMethod.Get, url);
-        requestBuilder.AddQueryParameter("location", "");
-
-        using var response =
-            await Minio_Client.ExecuteTaskAsync(Enumerable.Empty<ApiResponseErrorHandlingDelegate>(), requestBuilder)
-                .ConfigureAwait(false);
-
-        if (string.IsNullOrWhiteSpace(response.Content) ||
-            !HttpStatusCode.OK.Equals(response.StatusCode))
-            throw new CredentialsProviderException("IAMAWSProvider",
-                "Credential Get operation failed with HTTP Status code: " + response.StatusCode);
-
-        var roleNames = response.Content.Split('\n');
-        if (roleNames.Length <= 0)
-            throw new CredentialsProviderException("IAMAWSProvider",
-                "No IAM roles are attached to AWS service at " + url);
-
-        var index = 0;
-        foreach (var item in roleNames) roleNames[index++] = item.Trim();
-        return roleNames[0];
-    }
-
-    public async Task<Uri> GetIamRoleNamedURL()
-    {
-        Validate();
-        var url = CustomEndPoint;
-        string newUrlStr;
-        if (url == null || string.IsNullOrWhiteSpace(url.Authority))
-        {
-            url = new Uri("http://169.254.169.254/latest/meta-data/iam/security-credentials/");
-            newUrlStr = "http://169.254.169.254/latest/meta-data/iam/security-credentials/";
-        }
-        else
-        {
-            var urlStr = url.Scheme + "://" + url.Authority + "/latest/meta-data/iam/security-credentials/";
-            url = new Uri(urlStr);
-            newUrlStr = urlStr;
+            ClientProvider provider = new WebIdentityProvider()
+                .WithJWTSupplier(() =>
+                {
+                    var tokenContents = File.ReadAllText(tokenFile);
+                    return new JsonWebToken(tokenContents, 0);
+                })
+                .WithSTSEndpoint(url)
+                .WithDurationInSeconds(null)
+                .WithPolicy(null)
+                .WithRoleARN(Environment.GetEnvironmentVariable("AWS_ROLE_ARN"))
+                .WithRoleSessionName(Environment.GetEnvironmentVariable("AWS_ROLE_SESSION_NAME"));
+            Credentials = provider.GetCredentials();
+            return Credentials;
         }
 
-        var roleName = await GetIamRoleNameAsync(url).ConfigureAwait(false);
-        newUrlStr += roleName;
-        return new Uri(newUrlStr);
-    }
+        public async Task<AccessCredentials> GetAccessCredentials(Uri url)
+        {
+            ArgumentNullExceptionUtil.ThrowIfNull(url);
 
-    public IAMAWSProvider WithMinioClient(MinioClient minio)
+            Validate();
+            using var request = new HttpRequestMessage(HttpMethod.Get, url.ToString());
+
+            var requestBuilder = new HttpRequestMessageBuilder(HttpMethod.Get, url);
+            requestBuilder.AddQueryParameter("location", "");
+
+            using var response =
+                await Minio_Client
+                    .ExecuteTaskAsync(Enumerable.Empty<ApiResponseErrorHandlingDelegate>(), requestBuilder)
+                    .ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(response.Content) ||
+                !HttpStatusCode.OK.Equals(response.StatusCode))
+                throw new CredentialsProviderException("IAMAWSProvider",
+                    "Credential Get operation failed with HTTP Status code: " + response.StatusCode);
+            /*
+    JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     {
-        Minio_Client = minio;
-        if (Credentials == null ||
-            string.IsNullOrWhiteSpace(Credentials.AccessKey) || string.IsNullOrWhiteSpace(Credentials.SecretKey))
-            Credentials = GetCredentialsAsync().GetAwaiter().GetResult();
+       MissingMemberHandling = MissingMemberHandling.Error,
+       ContractResolver = new CamelCasePropertyNamesContractResolver(),
+       Error = null
+    };*/
 
-        return this;
-    }
+            var credentials = JsonSerializer.Deserialize<ECSCredentials>(response.Content);
+            if (credentials.Code?.Equals("success", StringComparison.OrdinalIgnoreCase) == false)
+                throw new CredentialsProviderException("IAMAWSProvider",
+                    "Credential Get operation failed with code: " + credentials.Code + " and message " +
+                    credentials.Message);
 
-    public IAMAWSProvider WithEndpoint(string endpoint)
-    {
-        if (endpoint.Contains("https") || endpoint.Contains("http"))
-            CustomEndPoint = new Uri(endpoint);
-        else
-            CustomEndPoint = RequestUtil.MakeTargetURL(endpoint, true);
-        return this;
-    }
+            Credentials = credentials.GetAccessCredentials();
+            return Credentials;
+        }
 
-    public void Validate()
-    {
-        if (Minio_Client == null)
-            throw new ArgumentNullException(nameof(Minio_Client) +
-                                            " should be assigned for the operation to continue.");
+        public override async Task<AccessCredentials> GetCredentialsAsync()
+        {
+            if (Credentials?.AreExpired() == false) return Credentials;
+
+            var url = CustomEndPoint;
+            var awsTokenFile = Environment.GetEnvironmentVariable("AWS_WEB_IDENTITY_TOKEN_FILE");
+            if (!string.IsNullOrWhiteSpace(awsTokenFile))
+            {
+                Credentials = GetAccessCredentials(awsTokenFile);
+                return Credentials;
+            }
+
+            var containerRelativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
+            var containerFullUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_FULL_URI");
+            var isURLEmpty = url == null;
+            if (!string.IsNullOrWhiteSpace(containerRelativeUri) && isURLEmpty)
+            {
+                url = RequestUtil.MakeTargetURL("169.254.170.2" + "/" + containerRelativeUri, false);
+            }
+            else if (!string.IsNullOrWhiteSpace(containerFullUri) && isURLEmpty)
+            {
+                var fullUri = new Uri(containerFullUri);
+                url = RequestUtil.MakeTargetURL(fullUri.AbsolutePath, fullUri.Scheme == "https");
+            }
+            else
+            {
+                url = await GetIamRoleNamedURL().ConfigureAwait(false);
+            }
+
+            Credentials = await GetAccessCredentials(url).ConfigureAwait(false);
+            return Credentials;
+        }
+
+        public async Task<string> GetIamRoleNameAsync(Uri url)
+        {
+            Validate();
+            var requestBuilder = new HttpRequestMessageBuilder(HttpMethod.Get, url);
+            requestBuilder.AddQueryParameter("location", "");
+
+            using var response =
+                await Minio_Client
+                    .ExecuteTaskAsync(Enumerable.Empty<ApiResponseErrorHandlingDelegate>(), requestBuilder)
+                    .ConfigureAwait(false);
+
+            if (string.IsNullOrWhiteSpace(response.Content) ||
+                !HttpStatusCode.OK.Equals(response.StatusCode))
+                throw new CredentialsProviderException("IAMAWSProvider",
+                    "Credential Get operation failed with HTTP Status code: " + response.StatusCode);
+
+            var roleNames = response.Content.Split('\n');
+            if (roleNames.Length <= 0)
+                throw new CredentialsProviderException("IAMAWSProvider",
+                    "No IAM roles are attached to AWS service at " + url);
+
+            var index = 0;
+            foreach (var item in roleNames) roleNames[index++] = item.Trim();
+            return roleNames[0];
+        }
+
+        public async Task<Uri> GetIamRoleNamedURL()
+        {
+            Validate();
+            var url = CustomEndPoint;
+            string newUrlStr;
+            if (url == null || string.IsNullOrWhiteSpace(url.Authority))
+            {
+                url = new Uri("http://169.254.169.254/latest/meta-data/iam/security-credentials/");
+                newUrlStr = "http://169.254.169.254/latest/meta-data/iam/security-credentials/";
+            }
+            else
+            {
+                var urlStr = url.Scheme + "://" + url.Authority + "/latest/meta-data/iam/security-credentials/";
+                url = new Uri(urlStr);
+                newUrlStr = urlStr;
+            }
+
+            var roleName = await GetIamRoleNameAsync(url).ConfigureAwait(false);
+            newUrlStr += roleName;
+            return new Uri(newUrlStr);
+        }
+
+        public IAMAWSProvider WithMinioClient(MinioClient minio)
+        {
+            Minio_Client = minio;
+            if (Credentials == null ||
+                string.IsNullOrWhiteSpace(Credentials.AccessKey) || string.IsNullOrWhiteSpace(Credentials.SecretKey))
+                Credentials = GetCredentialsAsync().GetAwaiter().GetResult();
+
+            return this;
+        }
+
+        public IAMAWSProvider WithEndpoint(string endpoint)
+        {
+            if (endpoint.Contains("https") || endpoint.Contains("http"))
+                CustomEndPoint = new Uri(endpoint);
+            else
+                CustomEndPoint = RequestUtil.MakeTargetURL(endpoint, true);
+            return this;
+        }
+
+        public void Validate()
+        {
+            if (Minio_Client == null)
+                throw new ArgumentNullException(nameof(Minio_Client) +
+                                                " should be assigned for the operation to continue.");
+        }
     }
 }

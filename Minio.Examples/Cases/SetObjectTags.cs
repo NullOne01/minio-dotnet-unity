@@ -14,34 +14,38 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Minio.DataModel.Tags;
 
-namespace Minio.Examples.Cases;
-
-public static class SetObjectTags
+namespace Minio.Examples.Cases
 {
-    // Set Tags for the object
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name",
-        string objectName = "my-object-name",
-        Dictionary<string, string> tags = null,
-        string versionId = null)
+    public static class SetObjectTags
     {
-        try
+        // Set Tags for the object
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name",
+            string objectName = "my-object-name",
+            Dictionary<string, string> tags = null,
+            string versionId = null)
         {
-            Console.WriteLine("Running example for API: SetObjectTags");
-            var args = new SetObjectTagsArgs()
-                .WithBucket(bucketName)
-                .WithObject(objectName)
-                .WithVersionId(versionId)
-                .WithTagging(Tagging.GetObjectTags(tags));
-            await minio.SetObjectTagsAsync(args).ConfigureAwait(false);
-            Console.WriteLine($"Tags set for object {bucketName}/{objectName}.");
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Object]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: SetObjectTags");
+                var args = new SetObjectTagsArgs()
+                    .WithBucket(bucketName)
+                    .WithObject(objectName)
+                    .WithVersionId(versionId)
+                    .WithTagging(Tagging.GetObjectTags(tags));
+                await minio.SetObjectTagsAsync(args).ConfigureAwait(false);
+                Console.WriteLine($"Tags set for object {bucketName}/{objectName}.");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Object]  Exception: {e}");
+            }
         }
     }
 }

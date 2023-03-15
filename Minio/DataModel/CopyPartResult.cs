@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-[XmlRoot(ElementName = "CopyPartResult", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
-public class CopyPartResult
+namespace Minio.DataModel
 {
-    public string ETag { get; set; }
-    public string LastModified { get; set; }
+    [Serializable]
+    [XmlRoot(ElementName = "CopyPartResult", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
+    public class CopyPartResult
+    {
+        public string ETag { get; set; }
+        public string LastModified { get; set; }
+    }
 }

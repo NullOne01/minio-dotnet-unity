@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel.Tags;
-
-[Serializable]
-[XmlRoot(ElementName = "TagSet")]
-public class TagSet
+namespace Minio.DataModel.Tags
 {
-    public TagSet()
+    [Serializable]
+    [XmlRoot(ElementName = "TagSet")]
+    public class TagSet
     {
-        Tag = null;
-    }
+        public TagSet()
+        {
+            Tag = null;
+        }
 
-    public TagSet(IReadOnlyDictionary<string, string> tags)
-    {
-        if (tags == null || tags.Count == 0) return;
-        Tag = new List<Tag>();
-        foreach (var item in tags) Tag.Add(new Tag(item.Key, item.Value));
-    }
+        public TagSet(IReadOnlyDictionary<string, string> tags)
+        {
+            if (tags == null || tags.Count == 0) return;
+            Tag = new List<Tag>();
+            foreach (var item in tags) Tag.Add(new Tag(item.Key, item.Value));
+        }
 
-    [XmlElement("Tag")] public List<Tag> Tag { get; set; }
+        [XmlElement("Tag")] public List<Tag> Tag { get; set; }
+    }
 }

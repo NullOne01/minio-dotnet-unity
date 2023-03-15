@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
 /*
@@ -24,26 +25,27 @@ using System.Xml.Serialization;
  * https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html
  */
 
-namespace Minio.DataModel.Replication;
-
-[Serializable]
-[XmlRoot(ElementName = "Metrics")]
-public class Metrics
+namespace Minio.DataModel.Replication
 {
-    public Metrics(string status, ReplicationTimeValue eventThreshold)
+    [Serializable]
+    [XmlRoot(ElementName = "Metrics")]
+    public class Metrics
     {
-        if (string.IsNullOrEmpty(Status) || string.IsNullOrWhiteSpace(Status))
-            throw new ArgumentNullException(nameof(Status) + " member cannot be empty.");
-        Status = status;
-        EventThreshold = eventThreshold;
+        public Metrics(string status, ReplicationTimeValue eventThreshold)
+        {
+            if (string.IsNullOrEmpty(Status) || string.IsNullOrWhiteSpace(Status))
+                throw new ArgumentNullException(nameof(Status) + " member cannot be empty.");
+            Status = status;
+            EventThreshold = eventThreshold;
+        }
+
+        public Metrics()
+        {
+        }
+
+        [XmlElement(ElementName = "Status", IsNullable = true)]
+        public string Status { get; set; }
+
+        [XmlElement("EventThreshold")] public ReplicationTimeValue EventThreshold { get; set; }
     }
-
-    public Metrics()
-    {
-    }
-
-    [XmlElement(ElementName = "Status", IsNullable = true)]
-    public string Status { get; set; }
-
-    [XmlElement("EventThreshold")] public ReplicationTimeValue EventThreshold { get; set; }
 }

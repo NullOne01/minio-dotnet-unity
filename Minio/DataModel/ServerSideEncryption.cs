@@ -14,151 +14,154 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Text;
 using Minio.Helper;
 
-namespace Minio.DataModel;
-
+namespace Minio.DataModel
+{
 // Type of Server-side encryption
-public enum EncryptionType
-{
-    SSE_C,
-    SSE_S3,
-    SSE_KMS
-}
-
-/// <summary>
-///     ServerSideEncryption interface
-/// </summary>
-public interface IServerSideEncryption
-{
-    // GetType() needs to return the type of Server-side encryption
-    EncryptionType GetEncryptionType();
-
-    // Marshals the Server-side encryption headers into dictionary
-    void Marshal(Dictionary<string, string> headers);
-}
-
-/// <summary>
-///     Server-side encryption with customer provided keys (SSE-C)
-/// </summary>
-public class SSEC : IServerSideEncryption
-{
-    // secret AES-256 Key
-    protected byte[] key;
-
-    public SSEC(byte[] key)
+    public enum EncryptionType
     {
-        if (key == null || key.Length != 32)
-            throw new ArgumentException("Secret key needs to be a 256 bit AES Key", nameof(key));
-        this.key = key;
-    }
-
-    public EncryptionType GetEncryptionType()
-    {
-        return EncryptionType.SSE_C;
-    }
-
-    public virtual void Marshal(Dictionary<string, string> headers)
-    {
-        var md5SumStr = Utils.getMD5SumStr(key);
-        headers.Add("X-Amz-Server-Side-Encryption-Customer-Algorithm", "AES256");
-        headers.Add("X-Amz-Server-Side-Encryption-Customer-Key", Convert.ToBase64String(key));
-        headers.Add("X-Amz-Server-Side-Encryption-Customer-Key-Md5", md5SumStr);
-    }
-}
-
-/// <summary>
-///     Server-side encryption option for source side SSE-C copy operation
-/// </summary>
-public class SSECopy : SSEC
-{
-    public SSECopy(byte[] key) : base(key)
-    {
-    }
-
-    public override void Marshal(Dictionary<string, string> headers)
-    {
-        var md5SumStr = Utils.getMD5SumStr(key);
-        headers.Add("X-Amz-Copy-Source-Server-Side-Encryption-Customer-Algorithm", "AES256");
-        headers.Add("X-Amz-Copy-Source-Server-Side-Encryption-Customer-Key", Convert.ToBase64String(key));
-        headers.Add("X-Amz-Copy-Source-Server-Side-Encryption-Customer-Key-Md5", md5SumStr);
-    }
-
-    public SSEC CloneToSSEC()
-    {
-        return new SSEC(key);
-    }
-}
-
-/// <summary>
-///     Server-side encryption with S3 managed encryption keys (SSE-S3)
-/// </summary>
-public class SSES3 : IServerSideEncryption
-{
-    public EncryptionType GetEncryptionType()
-    {
-        return EncryptionType.SSE_S3;
-    }
-
-    public virtual void Marshal(Dictionary<string, string> headers)
-    {
-        headers.Add(Constants.SSEGenericHeader, "AES256");
-    }
-}
-
-/// <summary>
-///     Server-side encryption with AWS KMS managed keys
-/// </summary>
-public class SSEKMS : IServerSideEncryption
-{
-    protected Dictionary<string, string> context;
-
-    // Specifies the customer master key(CMK).Cannot be null
-    protected string key;
-
-    public SSEKMS(string key, Dictionary<string, string> context = null)
-    {
-        if (string.IsNullOrEmpty(key))
-            throw new ArgumentException("KMS Key cannot be empty", nameof(key));
-        this.key = key;
-        this.context = context;
-    }
-
-    public EncryptionType GetEncryptionType()
-    {
-        return EncryptionType.SSE_KMS;
-    }
-
-    public void Marshal(Dictionary<string, string> headers)
-    {
-        headers.Add(Constants.SSEKMSKeyId, key);
-        headers.Add(Constants.SSEGenericHeader, "aws:kms");
-        if (context != null) headers.Add(Constants.SSEKMSContext, MarshalContext());
+        SSE_C,
+        SSE_S3,
+        SSE_KMS
     }
 
     /// <summary>
-    ///     Serialize context into JSON string.
+    ///     ServerSideEncryption interface
     /// </summary>
-    /// <returns>Serialized JSON context</returns>
-    private string MarshalContext()
+    public interface IServerSideEncryption
     {
-        var sb = new StringBuilder();
+        // GetType() needs to return the type of Server-side encryption
+        EncryptionType GetEncryptionType();
 
-        sb.Append('{');
-        var i = 0;
-        var len = context.Count;
-        foreach (var pair in context)
+        // Marshals the Server-side encryption headers into dictionary
+        void Marshal(Dictionary<string, string> headers);
+    }
+
+    /// <summary>
+    ///     Server-side encryption with customer provided keys (SSE-C)
+    /// </summary>
+    public class SSEC : IServerSideEncryption
+    {
+        // secret AES-256 Key
+        protected byte[] key;
+
+        public SSEC(byte[] key)
         {
-            sb.Append('"').Append(pair.Key).Append('"');
-            sb.Append(':');
-            sb.Append('"').Append(pair.Value).Append('"');
-            i++;
-            if (i != len) sb.Append(':');
+            if (key == null || key.Length != 32)
+                throw new ArgumentException("Secret key needs to be a 256 bit AES Key", nameof(key));
+            this.key = key;
         }
 
-        sb.Append('}');
-        var contextBytes = Encoding.UTF8.GetBytes(sb.ToString());
-        return Convert.ToBase64String(contextBytes);
+        public EncryptionType GetEncryptionType()
+        {
+            return EncryptionType.SSE_C;
+        }
+
+        public virtual void Marshal(Dictionary<string, string> headers)
+        {
+            var md5SumStr = Utils.getMD5SumStr(key);
+            headers.Add("X-Amz-Server-Side-Encryption-Customer-Algorithm", "AES256");
+            headers.Add("X-Amz-Server-Side-Encryption-Customer-Key", Convert.ToBase64String(key));
+            headers.Add("X-Amz-Server-Side-Encryption-Customer-Key-Md5", md5SumStr);
+        }
+    }
+
+    /// <summary>
+    ///     Server-side encryption option for source side SSE-C copy operation
+    /// </summary>
+    public class SSECopy : SSEC
+    {
+        public SSECopy(byte[] key) : base(key)
+        {
+        }
+
+        public override void Marshal(Dictionary<string, string> headers)
+        {
+            var md5SumStr = Utils.getMD5SumStr(key);
+            headers.Add("X-Amz-Copy-Source-Server-Side-Encryption-Customer-Algorithm", "AES256");
+            headers.Add("X-Amz-Copy-Source-Server-Side-Encryption-Customer-Key", Convert.ToBase64String(key));
+            headers.Add("X-Amz-Copy-Source-Server-Side-Encryption-Customer-Key-Md5", md5SumStr);
+        }
+
+        public SSEC CloneToSSEC()
+        {
+            return new SSEC(key);
+        }
+    }
+
+    /// <summary>
+    ///     Server-side encryption with S3 managed encryption keys (SSE-S3)
+    /// </summary>
+    public class SSES3 : IServerSideEncryption
+    {
+        public EncryptionType GetEncryptionType()
+        {
+            return EncryptionType.SSE_S3;
+        }
+
+        public virtual void Marshal(Dictionary<string, string> headers)
+        {
+            headers.Add(Constants.SSEGenericHeader, "AES256");
+        }
+    }
+
+    /// <summary>
+    ///     Server-side encryption with AWS KMS managed keys
+    /// </summary>
+    public class SSEKMS : IServerSideEncryption
+    {
+        protected Dictionary<string, string> context;
+
+        // Specifies the customer master key(CMK).Cannot be null
+        protected string key;
+
+        public SSEKMS(string key, Dictionary<string, string> context = null)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException("KMS Key cannot be empty", nameof(key));
+            this.key = key;
+            this.context = context;
+        }
+
+        public EncryptionType GetEncryptionType()
+        {
+            return EncryptionType.SSE_KMS;
+        }
+
+        public void Marshal(Dictionary<string, string> headers)
+        {
+            headers.Add(Constants.SSEKMSKeyId, key);
+            headers.Add(Constants.SSEGenericHeader, "aws:kms");
+            if (context != null) headers.Add(Constants.SSEKMSContext, MarshalContext());
+        }
+
+        /// <summary>
+        ///     Serialize context into JSON string.
+        /// </summary>
+        /// <returns>Serialized JSON context</returns>
+        private string MarshalContext()
+        {
+            var sb = new StringBuilder();
+
+            sb.Append('{');
+            var i = 0;
+            var len = context.Count;
+            foreach (var pair in context)
+            {
+                sb.Append('"').Append(pair.Key).Append('"');
+                sb.Append(':');
+                sb.Append('"').Append(pair.Value).Append('"');
+                i++;
+                if (i != len) sb.Append(':');
+            }
+
+            sb.Append('}');
+            var contextBytes = Encoding.UTF8.GetBytes(sb.ToString());
+            return Convert.ToBase64String(contextBytes);
+        }
     }
 }

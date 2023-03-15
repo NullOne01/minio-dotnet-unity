@@ -14,27 +14,31 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-public static class RemoveBucketEncryption
+namespace Minio.Examples.Cases
 {
-    // Remove Encryption Configuration for the bucket
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name")
+    public static class RemoveBucketEncryption
     {
-        try
+        // Remove Encryption Configuration for the bucket
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name")
         {
-            Console.WriteLine("Running example for API: RemoveBucketEncryptionAsync");
-            await minio.RemoveBucketEncryptionAsync(
-                new RemoveBucketEncryptionArgs()
-                    .WithBucket(bucketName)
-            ).ConfigureAwait(false);
-            Console.WriteLine($"Removed encryption configuration for bucket {bucketName}.");
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Bucket]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: RemoveBucketEncryptionAsync");
+                await minio.RemoveBucketEncryptionAsync(
+                    new RemoveBucketEncryptionArgs()
+                        .WithBucket(bucketName)
+                ).ConfigureAwait(false);
+                Console.WriteLine($"Removed encryption configuration for bucket {bucketName}.");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Bucket]  Exception: {e}");
+            }
         }
     }
 }

@@ -17,92 +17,93 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Minio.Functional.Tests;
-
-internal enum TestStatus
+namespace Minio.Functional.Tests
 {
-    PASS,
-    FAIL,
-    NA
-}
-
-internal static class TestStatusExtender
-{
-    public static string AsText(this TestStatus status)
+    internal enum TestStatus
     {
-        switch (status)
+        PASS,
+        FAIL,
+        NA
+    }
+
+    internal static class TestStatusExtender
+    {
+        public static string AsText(this TestStatus status)
         {
-            case TestStatus.PASS: return "PASS";
-            case TestStatus.FAIL: return "FAIL";
-            default: return "NA";
+            switch (status)
+            {
+                case TestStatus.PASS: return "PASS";
+                case TestStatus.FAIL: return "FAIL";
+                default: return "NA";
+            }
         }
     }
-}
 
-internal sealed class MintLogger
-{
-    public MintLogger(string testName, string function, string description, TestStatus status, TimeSpan duration,
-        string alert = null, string message = null, string error = null, Dictionary<string, string> args = null)
+    internal sealed class MintLogger
     {
-        this.function = function;
-        this.duration = (int)duration.TotalMilliseconds;
-        name = $"{name} : {testName}";
-        this.alert = alert;
-        this.message = message;
-        this.error = error;
-        this.args = args;
-        this.status = status.AsText();
-    }
+        public MintLogger(string testName, string function, string description, TestStatus status, TimeSpan duration,
+            string alert = null, string message = null, string error = null, Dictionary<string, string> args = null)
+        {
+            this.function = function;
+            this.duration = (int)duration.TotalMilliseconds;
+            name = $"{name} : {testName}";
+            this.alert = alert;
+            this.message = message;
+            this.error = error;
+            this.args = args;
+            this.status = status.AsText();
+        }
 
-    /// <summary>
-    ///     SDK Name
-    /// </summary>
-    public string name { get; } = "minio-dotnet";
+        /// <summary>
+        ///     SDK Name
+        /// </summary>
+        public string name { get; } = "minio-dotnet";
 
-    /// <summary>
-    ///     Test function name
-    /// </summary>
-    public string function { get; }
+        /// <summary>
+        ///     Test function name
+        /// </summary>
+        public string function { get; }
 
-    /// <summary>
-    ///     Test function description
-    /// </summary>
-    public string description { get; private set; }
+        /// <summary>
+        ///     Test function description
+        /// </summary>
+        public string description { get; private set; }
 
-    /// <summary>
-    ///     Key-value pair of args relevant to test
-    /// </summary>
-    public Dictionary<string, string> args { get; }
+        /// <summary>
+        ///     Key-value pair of args relevant to test
+        /// </summary>
+        public Dictionary<string, string> args { get; }
 
-    /// <summary>
-    ///     duration of the whole test
-    /// </summary>
-    public int duration { get; }
+        /// <summary>
+        ///     duration of the whole test
+        /// </summary>
+        public int duration { get; }
 
-    /// <summary>
-    ///     test status : can be PASS, FAIL, NA
-    /// </summary>
-    public string status { get; }
+        /// <summary>
+        ///     test status : can be PASS, FAIL, NA
+        /// </summary>
+        public string status { get; }
 
-    /// <summary>
-    ///     alert message Information like whether this is a Blocker/ Gateway, Server etc can go here
-    /// </summary>
-    public string alert { get; }
+        /// <summary>
+        ///     alert message Information like whether this is a Blocker/ Gateway, Server etc can go here
+        /// </summary>
+        public string alert { get; }
 
-    /// <summary>
-    ///     descriptive error message
-    /// </summary>
-    public string message { get; }
+        /// <summary>
+        ///     descriptive error message
+        /// </summary>
+        public string message { get; }
 
-    /// <summary>
-    ///     actual low level exception/error thrown by the program
-    /// </summary>
-    public string error { get; }
+        /// <summary>
+        ///     actual low level exception/error thrown by the program
+        /// </summary>
+        public string error { get; }
 
-    public void Log()
-    {
-        Console.WriteLine(JsonSerializer.Serialize(this,
-            new JsonSerializerOptions
-                { WriteIndented = false, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault }));
+        public void Log()
+        {
+            Console.WriteLine(JsonSerializer.Serialize(this,
+                new JsonSerializerOptions
+                    { WriteIndented = false, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault }));
+        }
     }
 }

@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-public class CSVInputOptions
+namespace Minio.DataModel
 {
-    public CSVFileHeaderInfo FileHeaderInfo { get; set; }
+    [Serializable]
+    public class CSVInputOptions
+    {
+        public CSVFileHeaderInfo FileHeaderInfo { get; set; }
 
-    [XmlElement(IsNullable = false)] public string RecordDelimiter { get; set; }
+        [XmlElement(IsNullable = false)] public string RecordDelimiter { get; set; }
 
-    [XmlElement(IsNullable = false)] public string FieldDelimiter { get; set; }
+        [XmlElement(IsNullable = false)] public string FieldDelimiter { get; set; }
 
-    [XmlElement(IsNullable = false)] public string QuoteCharacter { get; set; }
+        [XmlElement(IsNullable = false)] public string QuoteCharacter { get; set; }
 
-    [XmlElement(IsNullable = false)] public string QuoteEscapeCharacter { get; set; }
+        [XmlElement(IsNullable = false)] public string QuoteEscapeCharacter { get; set; }
 
-    [XmlElement(IsNullable = false)] public string Comments { get; set; }
+        [XmlElement(IsNullable = false)] public string Comments { get; set; }
+    }
 }

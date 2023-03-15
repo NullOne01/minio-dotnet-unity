@@ -14,104 +14,106 @@
  * limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-/// <summary>
-///     NotificationConfig - represents one single notification configuration
-///     such as topic, queue or lambda configuration
-/// </summary>
-public class NotificationConfiguration
+namespace Minio.DataModel
 {
-    [XmlElement] public string Id { get; set; }
-    [XmlElement("Event")] public List<EventType> Events { get; set; }
-    [XmlElement("Filter")] public Filter Filter;
-
-    public NotificationConfiguration()
-    {
-        Arn = null;
-        Events = new List<EventType>();
-    }
-
-    public NotificationConfiguration(string arn)
-    {
-        Arn = new Arn(arn);
-    }
-
-    public NotificationConfiguration(Arn arn)
-    {
-        Arn = arn;
-    }
-
-
-    private Arn Arn { get; }
-
-    public void AddEvents(Collection<EventType> evnt)
-    {
-        Events ??= new List<EventType>();
-
-        Events.AddRange(evnt);
-    }
-
     /// <summary>
-    ///     AddFilterSuffix sets the suffix configuration to the current notification config
+    ///     NotificationConfig - represents one single notification configuration
+    ///     such as topic, queue or lambda configuration
     /// </summary>
-    /// <param name="suffix"></param>
-    public void AddFilterSuffix(string suffix)
+    public class NotificationConfiguration
     {
-        Filter ??= new Filter();
+        [XmlElement] public string Id { get; set; }
+        [XmlElement("Event")] public List<EventType> Events { get; set; }
+        [XmlElement("Filter")] public Filter Filter;
 
-        var newFilterRule = new FilterRule("suffix", suffix);
-        // Replace any suffix rule if existing and add to the list otherwise
-        for (var i = 0; i < Filter.S3Key.FilterRules.Count; i++)
-            if (Filter.S3Key.FilterRules[i].Equals("suffix"))
-            {
-                Filter.S3Key.FilterRules[i] = newFilterRule;
-                return;
-            }
+        public NotificationConfiguration()
+        {
+            Arn = null;
+            Events = new List<EventType>();
+        }
 
-        Filter.S3Key.FilterRules.Add(newFilterRule);
-    }
+        public NotificationConfiguration(string arn)
+        {
+            Arn = new Arn(arn);
+        }
 
-    /// <summary>
-    ///     AddFilterPrefix sets the prefix configuration to the current notification config
-    /// </summary>
-    /// <param name="prefix"></param>
-    public void AddFilterPrefix(string prefix)
-    {
-        Filter ??= new Filter();
+        public NotificationConfiguration(Arn arn)
+        {
+            Arn = arn;
+        }
 
-        var newFilterRule = new FilterRule("prefix", prefix);
-        // Replace any prefix rule if existing and add to the list otherwise
-        for (var i = 0; i < Filter.S3Key.FilterRules.Count; i++)
-            if (Filter.S3Key.FilterRules[i].Equals("prefix"))
-            {
-                Filter.S3Key.FilterRules[i] = newFilterRule;
-                return;
-            }
 
-        Filter.S3Key.FilterRules.Add(newFilterRule);
-    }
+        private Arn Arn { get; }
 
-    public bool ShouldSerializeFilter()
-    {
-        return Filter != null;
-    }
+        public void AddEvents(Collection<EventType> evnt)
+        {
+            Events ??= new List<EventType>();
 
-    public bool ShouldSerializeId()
-    {
-        return Id != null;
-    }
+            Events.AddRange(evnt);
+        }
 
-    public bool ShouldSerializeEvents()
-    {
-        return Events?.Count > 0;
-    }
+        /// <summary>
+        ///     AddFilterSuffix sets the suffix configuration to the current notification config
+        /// </summary>
+        /// <param name="suffix"></param>
+        public void AddFilterSuffix(string suffix)
+        {
+            Filter ??= new Filter();
 
-    internal bool IsIdSet()
-    {
-        return Id != null;
+            var newFilterRule = new FilterRule("suffix", suffix);
+            // Replace any suffix rule if existing and add to the list otherwise
+            for (var i = 0; i < Filter.S3Key.FilterRules.Count; i++)
+                if (Filter.S3Key.FilterRules[i].Equals("suffix"))
+                {
+                    Filter.S3Key.FilterRules[i] = newFilterRule;
+                    return;
+                }
+
+            Filter.S3Key.FilterRules.Add(newFilterRule);
+        }
+
+        /// <summary>
+        ///     AddFilterPrefix sets the prefix configuration to the current notification config
+        /// </summary>
+        /// <param name="prefix"></param>
+        public void AddFilterPrefix(string prefix)
+        {
+            Filter ??= new Filter();
+
+            var newFilterRule = new FilterRule("prefix", prefix);
+            // Replace any prefix rule if existing and add to the list otherwise
+            for (var i = 0; i < Filter.S3Key.FilterRules.Count; i++)
+                if (Filter.S3Key.FilterRules[i].Equals("prefix"))
+                {
+                    Filter.S3Key.FilterRules[i] = newFilterRule;
+                    return;
+                }
+
+            Filter.S3Key.FilterRules.Add(newFilterRule);
+        }
+
+        public bool ShouldSerializeFilter()
+        {
+            return Filter != null;
+        }
+
+        public bool ShouldSerializeId()
+        {
+            return Id != null;
+        }
+
+        public bool ShouldSerializeEvents()
+        {
+            return Events?.Count > 0;
+        }
+
+        internal bool IsIdSet()
+        {
+            return Id != null;
+        }
     }
 }

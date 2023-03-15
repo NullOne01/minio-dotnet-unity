@@ -14,32 +14,34 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel.ObjectLock;
-
-public enum RetentionMode
+namespace Minio.DataModel.ObjectLock
 {
-    GOVERNANCE,
-    COMPLIANCE
-}
-
-[Serializable]
-[XmlRoot(ElementName = "Retention", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
-public class ObjectRetentionConfiguration
-{
-    public ObjectRetentionConfiguration()
+    public enum RetentionMode
     {
-        RetainUntilDate = null;
+        GOVERNANCE,
+        COMPLIANCE
     }
 
-    public ObjectRetentionConfiguration(DateTime date, RetentionMode mode = RetentionMode.GOVERNANCE)
+    [Serializable]
+    [XmlRoot(ElementName = "Retention", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
+    public class ObjectRetentionConfiguration
     {
-        RetainUntilDate = Utils.To8601String(date);
-        Mode = mode;
+        public ObjectRetentionConfiguration()
+        {
+            RetainUntilDate = null;
+        }
+
+        public ObjectRetentionConfiguration(DateTime date, RetentionMode mode = RetentionMode.GOVERNANCE)
+        {
+            RetainUntilDate = Utils.To8601String(date);
+            Mode = mode;
+        }
+
+        [XmlElement("Mode")] public RetentionMode Mode { get; set; }
+
+        [XmlElement("RetainUntilDate")] public string RetainUntilDate { get; set; }
     }
-
-    [XmlElement("Mode")] public RetentionMode Mode { get; set; }
-
-    [XmlElement("RetainUntilDate")] public string RetainUntilDate { get; set; }
 }

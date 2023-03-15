@@ -14,27 +14,29 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio;
-
-[Serializable]
-[XmlRoot(ElementName = "Rule", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
-public class ServerSideEncryptionConfigurationRule
+namespace Minio
 {
-    internal const string SSE_AES256 = "AES256";
-    internal const string SSE_AWSKMS = "aws:kms";
-
-    public ServerSideEncryptionConfigurationRule()
+    [Serializable]
+    [XmlRoot(ElementName = "Rule", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
+    public class ServerSideEncryptionConfigurationRule
     {
-        Apply = new ServerSideEncryptionConfigurationApply();
-    }
+        internal const string SSE_AES256 = "AES256";
+        internal const string SSE_AWSKMS = "aws:kms";
 
-    public ServerSideEncryptionConfigurationRule(string algorithm = SSE_AES256, string keyId = null)
-    {
-        Apply = new ServerSideEncryptionConfigurationApply(algorithm, keyId);
-    }
+        public ServerSideEncryptionConfigurationRule()
+        {
+            Apply = new ServerSideEncryptionConfigurationApply();
+        }
 
-    [XmlElement("ApplyServerSideEncryptionByDefault")]
-    public ServerSideEncryptionConfigurationApply Apply { get; set; }
+        public ServerSideEncryptionConfigurationRule(string algorithm = SSE_AES256, string keyId = null)
+        {
+            Apply = new ServerSideEncryptionConfigurationApply(algorithm, keyId);
+        }
+
+        [XmlElement("ApplyServerSideEncryptionByDefault")]
+        public ServerSideEncryptionConfigurationApply Apply { get; set; }
+    }
 }

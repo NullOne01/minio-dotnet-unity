@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-public class Prefix
+namespace Minio.DataModel
 {
-    [XmlAttribute("Prefix")] public string Name { get; set; }
+    [Serializable]
+    public class Prefix
+    {
+        [XmlAttribute("Prefix")] public string Name { get; set; }
+    }
 }

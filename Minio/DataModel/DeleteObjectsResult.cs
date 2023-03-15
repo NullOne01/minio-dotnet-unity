@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using Minio.Exceptions;
 
-namespace Minio.DataModel;
-
-[Serializable]
-[XmlRoot(ElementName = "DeleteResult", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
-public class DeleteObjectsResult
+namespace Minio.DataModel
 {
-    [XmlElement("Deleted")] public List<DeletedObject> objectsList;
-    [XmlElement("Error")] public List<DeleteError> errorList;
-
-
-    public IList<DeletedObject> ObjectsList()
+    [Serializable]
+    [XmlRoot(ElementName = "DeleteResult", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
+    public class DeleteObjectsResult
     {
-        return objectsList;
-    }
+        [XmlElement("Deleted")] public List<DeletedObject> objectsList;
+        [XmlElement("Error")] public List<DeleteError> errorList;
 
-    public IList<DeleteError> ErrorList()
-    {
-        return errorList;
+
+        public IList<DeletedObject> ObjectsList()
+        {
+            return objectsList;
+        }
+
+        public IList<DeleteError> ErrorList()
+        {
+            return errorList;
+        }
     }
 }

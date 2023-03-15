@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-namespace Minio.DataModel;
+using System;
+using System.IO;
 
-[Serializable]
-public class SelectObjectContentResponse
+namespace Minio.DataModel
 {
-    /// Event Stream result of SelectObjectContent
-    public Action<Stream> StreamCallBack { get; set; }
+    [Serializable]
+    public class SelectObjectContentResponse
+    {
+        /// Event Stream result of SelectObjectContent
+        public Action<Stream> StreamCallBack { get; set; }
+    }
 }

@@ -14,69 +14,72 @@
  * limitations under the License.
  */
 
+using System;
+using System.Linq;
 using System.Text;
 using Minio.DataModel.Tracing;
 
-namespace Minio;
-
-public sealed class DefaultRequestLogger : IRequestLogger
+namespace Minio
 {
-    public void LogRequest(RequestToLog requestToLog, ResponseToLog responseToLog, double durationMs)
+    public sealed class DefaultRequestLogger : IRequestLogger
     {
-        var sb = new StringBuilder("Request completed in ");
-
-        sb.Append(durationMs);
-        sb.AppendLine(" ms");
-
-        sb.AppendLine();
-        sb.AppendLine("- - - - - - - - - - BEGIN REQUEST - - - - - - - - - -");
-        sb.AppendLine();
-        sb.Append(requestToLog.method);
-        sb.Append(' ');
-        sb.Append(requestToLog.uri);
-        sb.AppendLine(" HTTP/1.1");
-
-        var requestHeaders = requestToLog.parameters;
-        requestHeaders = requestHeaders.OrderByDescending(p => p.name == "Host");
-
-        foreach (var item in requestHeaders)
+        public void LogRequest(RequestToLog requestToLog, ResponseToLog responseToLog, double durationMs)
         {
-            sb.Append(item.name);
-            sb.Append(": ");
-            sb.AppendLine(item.value.ToString());
+            var sb = new StringBuilder("Request completed in ");
+
+            sb.Append(durationMs);
+            sb.AppendLine(" ms");
+
+            sb.AppendLine();
+            sb.AppendLine("- - - - - - - - - - BEGIN REQUEST - - - - - - - - - -");
+            sb.AppendLine();
+            sb.Append(requestToLog.method);
+            sb.Append(' ');
+            sb.Append(requestToLog.uri);
+            sb.AppendLine(" HTTP/1.1");
+
+            var requestHeaders = requestToLog.parameters;
+            requestHeaders = requestHeaders.OrderByDescending(p => p.name == "Host");
+
+            foreach (var item in requestHeaders)
+            {
+                sb.Append(item.name);
+                sb.Append(": ");
+                sb.AppendLine(item.value.ToString());
+            }
+
+            sb.AppendLine();
+            sb.AppendLine();
+
+            sb.AppendLine("- - - - - - - - - - END REQUEST - - - - - - - - - -");
+            sb.AppendLine();
+
+            sb.AppendLine("- - - - - - - - - - BEGIN RESPONSE - - - - - - - - - -");
+            sb.AppendLine();
+
+            sb.Append("HTTP/1.1 ");
+            sb.Append((int)responseToLog.statusCode);
+            sb.Append(' ');
+            sb.AppendLine(responseToLog.statusCode.ToString());
+
+            var responseHeaders = responseToLog.headers;
+
+            foreach (var item in responseHeaders)
+            {
+                sb.Append(item.Key);
+                sb.Append(": ");
+                sb.AppendLine(item.Value);
+            }
+
+            sb.AppendLine();
+            sb.AppendLine();
+
+            sb.AppendLine(responseToLog.content);
+            sb.AppendLine(responseToLog.errorMessage);
+
+            sb.AppendLine("- - - - - - - - - - END RESPONSE - - - - - - - - - -");
+
+            Console.WriteLine(sb.ToString());
         }
-
-        sb.AppendLine();
-        sb.AppendLine();
-
-        sb.AppendLine("- - - - - - - - - - END REQUEST - - - - - - - - - -");
-        sb.AppendLine();
-
-        sb.AppendLine("- - - - - - - - - - BEGIN RESPONSE - - - - - - - - - -");
-        sb.AppendLine();
-
-        sb.Append("HTTP/1.1 ");
-        sb.Append((int)responseToLog.statusCode);
-        sb.Append(' ');
-        sb.AppendLine(responseToLog.statusCode.ToString());
-
-        var responseHeaders = responseToLog.headers;
-
-        foreach (var item in responseHeaders)
-        {
-            sb.Append(item.Key);
-            sb.Append(": ");
-            sb.AppendLine(item.Value);
-        }
-
-        sb.AppendLine();
-        sb.AppendLine();
-
-        sb.AppendLine(responseToLog.content);
-        sb.AppendLine(responseToLog.errorMessage);
-
-        sb.AppendLine("- - - - - - - - - - END RESPONSE - - - - - - - - - -");
-
-        Console.WriteLine(sb.ToString());
     }
 }

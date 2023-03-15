@@ -14,72 +14,74 @@
  * limitations under the License.
  */
 
+using System.Net.Http;
 using System.Text;
 using Minio.DataModel;
 using Minio.Exceptions;
 
-namespace Minio;
-
-public class GetVersioningArgs : BucketArgs<GetVersioningArgs>
+namespace Minio
 {
-    public GetVersioningArgs()
+    public class GetVersioningArgs : BucketArgs<GetVersioningArgs>
     {
-        RequestMethod = HttpMethod.Get;
+        public GetVersioningArgs()
+        {
+            RequestMethod = HttpMethod.Get;
+        }
+
+        internal override HttpRequestMessageBuilder BuildRequest(HttpRequestMessageBuilder requestMessageBuilder)
+        {
+            requestMessageBuilder.AddQueryParameter("versioning", "");
+            return requestMessageBuilder;
+        }
     }
 
-    internal override HttpRequestMessageBuilder BuildRequest(HttpRequestMessageBuilder requestMessageBuilder)
+    public class SetVersioningArgs : BucketArgs<SetVersioningArgs>
     {
-        requestMessageBuilder.AddQueryParameter("versioning", "");
-        return requestMessageBuilder;
-    }
-}
+        internal VersioningStatus CurrentVersioningStatus;
 
-public class SetVersioningArgs : BucketArgs<SetVersioningArgs>
-{
-    internal VersioningStatus CurrentVersioningStatus;
+        public SetVersioningArgs()
+        {
+            RequestMethod = HttpMethod.Put;
+            CurrentVersioningStatus = VersioningStatus.Off;
+        }
 
-    public SetVersioningArgs()
-    {
-        RequestMethod = HttpMethod.Put;
-        CurrentVersioningStatus = VersioningStatus.Off;
-    }
+        internal override void Validate()
+        {
+            Utils.ValidateBucketName(BucketName);
+            if (CurrentVersioningStatus > VersioningStatus.Suspended)
+                throw new UnexpectedMinioException("CurrentVersioningStatus invalid value .");
+        }
 
-    internal override void Validate()
-    {
-        Utils.ValidateBucketName(BucketName);
-        if (CurrentVersioningStatus > VersioningStatus.Suspended)
-            throw new UnexpectedMinioException("CurrentVersioningStatus invalid value .");
-    }
+        public SetVersioningArgs WithVersioningEnabled()
+        {
+            CurrentVersioningStatus = VersioningStatus.Enabled;
+            return this;
+        }
 
-    public SetVersioningArgs WithVersioningEnabled()
-    {
-        CurrentVersioningStatus = VersioningStatus.Enabled;
-        return this;
-    }
+        public SetVersioningArgs WithVersioningSuspended()
+        {
+            CurrentVersioningStatus = VersioningStatus.Suspended;
+            return this;
+        }
 
-    public SetVersioningArgs WithVersioningSuspended()
-    {
-        CurrentVersioningStatus = VersioningStatus.Suspended;
-        return this;
-    }
+        internal override HttpRequestMessageBuilder BuildRequest(HttpRequestMessageBuilder requestMessageBuilder)
+        {
+            var config = new VersioningConfiguration(CurrentVersioningStatus == VersioningStatus.Enabled);
 
-    internal override HttpRequestMessageBuilder BuildRequest(HttpRequestMessageBuilder requestMessageBuilder)
-    {
-        var config = new VersioningConfiguration(CurrentVersioningStatus == VersioningStatus.Enabled);
+            var body = Utils.MarshalXML(config, "http://s3.amazonaws.com/doc/2006-03-01/");
+            requestMessageBuilder.AddXmlBody(body);
+            requestMessageBuilder.AddOrUpdateHeaderParameter("Content-Md5",
+                Utils.getMD5SumStr(Encoding.UTF8.GetBytes(body)));
 
-        var body = Utils.MarshalXML(config, "http://s3.amazonaws.com/doc/2006-03-01/");
-        requestMessageBuilder.AddXmlBody(body);
-        requestMessageBuilder.AddOrUpdateHeaderParameter("Content-Md5",
-            Utils.getMD5SumStr(Encoding.UTF8.GetBytes(body)));
+            requestMessageBuilder.AddQueryParameter("versioning", "");
+            return requestMessageBuilder;
+        }
 
-        requestMessageBuilder.AddQueryParameter("versioning", "");
-        return requestMessageBuilder;
-    }
-
-    internal enum VersioningStatus : ushort
-    {
-        Off = 0,
-        Enabled = 1,
-        Suspended = 2
+        internal enum VersioningStatus : ushort
+        {
+            Off = 0,
+            Enabled = 1,
+            Suspended = 2
+        }
     }
 }

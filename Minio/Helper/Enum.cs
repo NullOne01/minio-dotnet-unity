@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-namespace Minio;
-
-public static class Enum
+namespace Minio
 {
-    /// <summary>
-    ///     HTTP method to use when making requests
-    /// </summary>
-    internal enum Method
+    public static class Enum
     {
-        GET,
-        POST,
-        PUT,
-        DELETE,
-        HEAD,
-        OPTIONS,
-        PATCH,
-        MERGE
+        /// <summary>
+        ///     HTTP method to use when making requests
+        /// </summary>
+        internal enum Method
+        {
+            GET,
+            POST,
+            PUT,
+            DELETE,
+            HEAD,
+            OPTIONS,
+            PATCH,
+            MERGE
+        }
     }
 }

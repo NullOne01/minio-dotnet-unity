@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-internal static class RemoveAllBucketNotifications
+namespace Minio.Examples.Cases
 {
-    // Removes all bucket notifications
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name")
+    internal static class RemoveAllBucketNotifications
     {
-        try
+        // Removes all bucket notifications
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name")
         {
-            Console.WriteLine("Running example for API: RemoveAllBucketNotificationAsync");
+            try
+            {
+                Console.WriteLine("Running example for API: RemoveAllBucketNotificationAsync");
 
-            var args = new RemoveAllBucketNotificationsArgs()
-                .WithBucket(bucketName);
-            await minio.RemoveAllBucketNotificationsAsync(args).ConfigureAwait(false);
+                var args = new RemoveAllBucketNotificationsArgs()
+                    .WithBucket(bucketName);
+                await minio.RemoveAllBucketNotificationsAsync(args).ConfigureAwait(false);
 
-            Console.WriteLine($"Notifications successfully removed from the bucket {bucketName}");
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Bucket]  Exception: {e}");
+                Console.WriteLine($"Notifications successfully removed from the bucket {bucketName}");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Bucket]  Exception: {e}");
+            }
         }
     }
 }

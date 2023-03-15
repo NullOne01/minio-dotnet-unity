@@ -15,12 +15,15 @@
  * limitations under the License.
  */
 
-namespace Minio.Credentials;
+using System;
 
-public abstract class EnvironmentProvider : ClientProvider
+namespace Minio.Credentials
 {
-    internal string GetEnvironmentVariable(string env)
+    public abstract class EnvironmentProvider : ClientProvider
     {
-        return Environment.GetEnvironmentVariable(env);
+        internal string GetEnvironmentVariable(string env)
+        {
+            return Environment.GetEnvironmentVariable(env);
+        }
     }
 }

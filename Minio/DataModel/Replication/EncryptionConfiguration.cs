@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
 /*
@@ -24,21 +25,22 @@ using System.Xml.Serialization;
  * https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html
  */
 
-namespace Minio.DataModel.Replication;
-
-public class EncryptionConfiguration
+namespace Minio.DataModel.Replication
 {
-    public EncryptionConfiguration(string replicaKmsKeyID)
+    public class EncryptionConfiguration
     {
-        if (string.IsNullOrEmpty(replicaKmsKeyID) || string.IsNullOrWhiteSpace(replicaKmsKeyID))
-            throw new ArgumentNullException(nameof(ReplicaKmsKeyID) + " cannot be null or empty.");
-        ReplicaKmsKeyID = replicaKmsKeyID;
-    }
+        public EncryptionConfiguration(string replicaKmsKeyID)
+        {
+            if (string.IsNullOrEmpty(replicaKmsKeyID) || string.IsNullOrWhiteSpace(replicaKmsKeyID))
+                throw new ArgumentNullException(nameof(ReplicaKmsKeyID) + " cannot be null or empty.");
+            ReplicaKmsKeyID = replicaKmsKeyID;
+        }
 
-    public EncryptionConfiguration()
-    {
-    }
+        public EncryptionConfiguration()
+        {
+        }
 
-    [XmlElement(ElementName = "ReplicaKmsKeyID", IsNullable = true)]
-    public string ReplicaKmsKeyID { get; set; }
+        [XmlElement(ElementName = "ReplicaKmsKeyID", IsNullable = true)]
+        public string ReplicaKmsKeyID { get; set; }
+    }
 }

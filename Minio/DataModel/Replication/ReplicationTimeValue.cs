@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
 /*
@@ -24,20 +25,21 @@ using System.Xml.Serialization;
  * https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html
  */
 
-namespace Minio.DataModel.Replication;
-
-[Serializable]
-[XmlRoot(ElementName = "ReplicationTimeValue")]
-public class ReplicationTimeValue
+namespace Minio.DataModel.Replication
 {
-    public ReplicationTimeValue(int minutes)
+    [Serializable]
+    [XmlRoot(ElementName = "ReplicationTimeValue")]
+    public class ReplicationTimeValue
     {
-        Minutes = minutes;
-    }
+        public ReplicationTimeValue(int minutes)
+        {
+            Minutes = minutes;
+        }
 
-    public ReplicationTimeValue()
-    {
-    }
+        public ReplicationTimeValue()
+        {
+        }
 
-    [XmlElement("Minutes")] public int Minutes { get; set; }
+        [XmlElement("Minutes")] public int Minutes { get; set; }
+    }
 }

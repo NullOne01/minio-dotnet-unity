@@ -15,60 +15,66 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Minio.DataModel;
 
-namespace Minio.Credentials;
-
-public class ChainedProvider : ClientProvider
+namespace Minio.Credentials
 {
-    public ChainedProvider()
+    public class ChainedProvider : ClientProvider
     {
-        Providers = new List<ClientProvider>();
-    }
-
-    internal List<ClientProvider> Providers { get; set; }
-    internal ClientProvider CurrentProvider { get; set; }
-    internal AccessCredentials Credentials { get; set; }
-
-    public ChainedProvider AddProvider(ClientProvider provider)
-    {
-        Providers.Add(provider);
-        return this;
-    }
-
-    public ChainedProvider AddProviders(ClientProvider[] providers)
-    {
-        Providers.AddRange(providers.ToList());
-        return this;
-    }
-
-    public override AccessCredentials GetCredentials()
-    {
-        if (Credentials?.AreExpired() == false) return Credentials;
-        if (CurrentProvider != null && !Credentials.AreExpired())
+        public ChainedProvider()
         {
-            Credentials = CurrentProvider.GetCredentials();
-            return CurrentProvider.GetCredentials();
+            Providers = new List<ClientProvider>();
         }
 
-        foreach (var provider in Providers)
+        internal List<ClientProvider> Providers { get; set; }
+        internal ClientProvider CurrentProvider { get; set; }
+        internal AccessCredentials Credentials { get; set; }
+
+        public ChainedProvider AddProvider(ClientProvider provider)
         {
-            var credentials = provider.GetCredentials();
-            if (credentials?.AreExpired() == false)
+            Providers.Add(provider);
+            return this;
+        }
+
+        public ChainedProvider AddProviders(ClientProvider[] providers)
+        {
+            Providers.AddRange(providers.ToList());
+            return this;
+        }
+
+        public override AccessCredentials GetCredentials()
+        {
+            if (Credentials?.AreExpired() == false) return Credentials;
+            if (CurrentProvider != null && !Credentials.AreExpired())
             {
-                CurrentProvider = provider;
-                Credentials = credentials;
-                return credentials;
+                Credentials = CurrentProvider.GetCredentials();
+                return CurrentProvider.GetCredentials();
             }
+
+            foreach (var provider in Providers)
+            {
+                var credentials = provider.GetCredentials();
+                if (credentials?.AreExpired() == false)
+                {
+                    CurrentProvider = provider;
+                    Credentials = credentials;
+                    return credentials;
+                }
+            }
+
+            throw new InvalidOperationException(
+                "None of the assigned providers were able to provide valid credentials.");
         }
 
-        throw new InvalidOperationException("None of the assigned providers were able to provide valid credentials.");
-    }
-
-    public override async Task<AccessCredentials> GetCredentialsAsync()
-    {
-        var credentials = GetCredentials();
-        await Task.Yield();
-        return credentials;
+        public override async Task<AccessCredentials> GetCredentialsAsync()
+        {
+            var credentials = GetCredentials();
+            await Task.Yield();
+            return credentials;
+        }
     }
 }

@@ -14,31 +14,34 @@
  * limitations under the License.
  */
 
+using System;
+using System.Threading.Tasks;
 using Minio.DataModel.ObjectLock;
 
-namespace Minio.Examples.Cases;
-
-public static class SetObjectLockConfiguration
+namespace Minio.Examples.Cases
 {
-    // Set Object Lock Configuration on the bucket
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name",
-        ObjectLockConfiguration config = null)
+    public static class SetObjectLockConfiguration
     {
-        try
+        // Set Object Lock Configuration on the bucket
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name",
+            ObjectLockConfiguration config = null)
         {
-            Console.WriteLine("Running example for API: SetObjectLockConfiguration");
-            await minio.SetObjectLockConfigurationAsync(
-                new SetObjectLockConfigurationArgs()
-                    .WithBucket(bucketName)
-                    .WithLockConfiguration(config)
-            ).ConfigureAwait(false);
-            Console.WriteLine($"Set object lock configuration on bucket {bucketName}");
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Bucket]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: SetObjectLockConfiguration");
+                await minio.SetObjectLockConfigurationAsync(
+                    new SetObjectLockConfigurationArgs()
+                        .WithBucket(bucketName)
+                        .WithLockConfiguration(config)
+                ).ConfigureAwait(false);
+                Console.WriteLine($"Set object lock configuration on bucket {bucketName}");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Bucket]  Exception: {e}");
+            }
         }
     }
 }

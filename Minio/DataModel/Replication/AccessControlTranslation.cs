@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
 /*
@@ -24,22 +25,23 @@ using System.Xml.Serialization;
  * https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html
  */
 
-namespace Minio.DataModel.Replication;
-
-[Serializable]
-[XmlRoot(ElementName = "AccessControlTranslation")]
-public class AccessControlTranslation
+namespace Minio.DataModel.Replication
 {
-    public AccessControlTranslation(string owner)
+    [Serializable]
+    [XmlRoot(ElementName = "AccessControlTranslation")]
+    public class AccessControlTranslation
     {
-        if (string.IsNullOrEmpty(owner) || string.IsNullOrWhiteSpace(owner))
-            throw new ArgumentNullException(nameof(Owner) + " cannot be empty.");
-        Owner = owner;
-    }
+        public AccessControlTranslation(string owner)
+        {
+            if (string.IsNullOrEmpty(owner) || string.IsNullOrWhiteSpace(owner))
+                throw new ArgumentNullException(nameof(Owner) + " cannot be empty.");
+            Owner = owner;
+        }
 
-    public AccessControlTranslation()
-    {
-    }
+        public AccessControlTranslation()
+        {
+        }
 
-    [XmlElement("Owner")] public string Owner { get; set; }
+        [XmlElement("Owner")] public string Owner { get; set; }
+    }
 }

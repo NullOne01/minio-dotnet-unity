@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-public sealed class QueryExpressionType
+namespace Minio.DataModel
 {
-    // Constants for compression types under select API.
-    public static readonly QueryExpressionType SQL = new("SQL");
-
-    [XmlText] public string ExpressionType;
-
-    public QueryExpressionType()
+    [Serializable]
+    public sealed class QueryExpressionType
     {
-    }
+        // Constants for compression types under select API.
+        public static readonly QueryExpressionType SQL = new("SQL");
 
-    public QueryExpressionType(string value)
-    {
-        ExpressionType = value;
+        [XmlText] public string ExpressionType;
+
+        public QueryExpressionType()
+        {
+        }
+
+        public QueryExpressionType(string value)
+        {
+            ExpressionType = value;
+        }
     }
 }

@@ -14,35 +14,39 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-internal static class SetLegalHold
+namespace Minio.Examples.Cases
 {
-    // Enable Legal Hold
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name",
-        string objectName = "my-object-name",
-        string versionId = null)
+    internal static class SetLegalHold
     {
-        try
+        // Enable Legal Hold
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name",
+            string objectName = "my-object-name",
+            string versionId = null)
         {
-            Console.WriteLine("Running example for API: SetLegalHold, enable legal hold");
-            // Setting WithLegalHold true, sets Legal hold status to ON.
-            // Setting WithLegalHold false will set Legal hold status to OFF.
-            var args = new SetObjectLegalHoldArgs()
-                .WithBucket(bucketName)
-                .WithObject(objectName)
-                .WithVersionId(versionId)
-                .WithLegalHold(true);
-            await minio.SetObjectLegalHoldAsync(args).ConfigureAwait(false);
-            Console.WriteLine("Legal Hold status for " + bucketName + "/" + objectName +
-                              (string.IsNullOrEmpty(versionId) ? " " : " with version id " + versionId + " ") +
-                              " set to ON.");
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Object]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: SetLegalHold, enable legal hold");
+                // Setting WithLegalHold true, sets Legal hold status to ON.
+                // Setting WithLegalHold false will set Legal hold status to OFF.
+                var args = new SetObjectLegalHoldArgs()
+                    .WithBucket(bucketName)
+                    .WithObject(objectName)
+                    .WithVersionId(versionId)
+                    .WithLegalHold(true);
+                await minio.SetObjectLegalHoldAsync(args).ConfigureAwait(false);
+                Console.WriteLine("Legal Hold status for " + bucketName + "/" + objectName +
+                                  (string.IsNullOrEmpty(versionId) ? " " : " with version id " + versionId + " ") +
+                                  " set to ON.");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Object]  Exception: {e}");
+            }
         }
     }
 }

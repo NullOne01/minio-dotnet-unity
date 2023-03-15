@@ -14,31 +14,35 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-public static class RemoveObjectTags
+namespace Minio.Examples.Cases
 {
-    // Remove Tags set for the object
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name",
-        string objectName = "my-object-name",
-        string versionId = null)
+    public static class RemoveObjectTags
     {
-        try
+        // Remove Tags set for the object
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name",
+            string objectName = "my-object-name",
+            string versionId = null)
         {
-            Console.WriteLine("Running example for API: RemoveObjectTags");
-            await minio.RemoveObjectTagsAsync(
-                new RemoveObjectTagsArgs()
-                    .WithBucket(bucketName)
-                    .WithObject(objectName)
-                    .WithVersionId(versionId)
-            ).ConfigureAwait(false);
-            Console.WriteLine($"Tags removed for object {bucketName}/{objectName}.");
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Object]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: RemoveObjectTags");
+                await minio.RemoveObjectTagsAsync(
+                    new RemoveObjectTagsArgs()
+                        .WithBucket(bucketName)
+                        .WithObject(objectName)
+                        .WithVersionId(versionId)
+                ).ConfigureAwait(false);
+                Console.WriteLine($"Tags removed for object {bucketName}/{objectName}.");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Object]  Exception: {e}");
+            }
         }
     }
 }

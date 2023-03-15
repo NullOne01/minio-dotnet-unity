@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-public class OutputSerialization
+namespace Minio.DataModel
 {
-    [XmlAttribute("CSV")] public CSVOutputOptions CSV { get; set; }
+    [Serializable]
+    public class OutputSerialization
+    {
+        [XmlAttribute("CSV")] public CSVOutputOptions CSV { get; set; }
 
-    [XmlAttribute("JSON")] public JSONOutputOptions JSON { get; set; }
+        [XmlAttribute("JSON")] public JSONOutputOptions JSON { get; set; }
+    }
 }

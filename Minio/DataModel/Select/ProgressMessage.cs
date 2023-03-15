@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-[XmlRoot(ElementName = "Progress")]
-public sealed class ProgressMessage : StatsMessage
+namespace Minio.DataModel
 {
+    [Serializable]
+    [XmlRoot(ElementName = "Progress")]
+    public sealed class ProgressMessage : StatsMessage
+    {
+    }
 }

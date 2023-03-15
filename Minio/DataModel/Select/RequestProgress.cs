@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-public class RequestProgress
+namespace Minio.DataModel
 {
-    public RequestProgress()
+    [Serializable]
+    public class RequestProgress
     {
-    }
+        public RequestProgress()
+        {
+        }
 
-    public RequestProgress(bool val)
-    {
-        Enable = val;
-    }
+        public RequestProgress(bool val)
+        {
+            Enable = val;
+        }
 
-    [XmlElement(IsNullable = false)] public bool Enable { get; set; }
+        [XmlElement(IsNullable = false)] public bool Enable { get; set; }
+    }
 }

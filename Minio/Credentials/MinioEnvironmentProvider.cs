@@ -15,23 +15,25 @@
  * limitations under the License.
  */
 
+using System.Threading.Tasks;
 using Minio.DataModel;
 
-namespace Minio.Credentials;
-
-public class MinioEnvironmentProvider : EnvironmentProvider
+namespace Minio.Credentials
 {
-    public override AccessCredentials GetCredentials()
+    public class MinioEnvironmentProvider : EnvironmentProvider
     {
-        var credentials = new AccessCredentials(GetEnvironmentVariable("MINIO_ACCESS_KEY"),
-            GetEnvironmentVariable("MINIO_SECRET_KEY"), null, default);
-        return credentials;
-    }
+        public override AccessCredentials GetCredentials()
+        {
+            var credentials = new AccessCredentials(GetEnvironmentVariable("MINIO_ACCESS_KEY"),
+                GetEnvironmentVariable("MINIO_SECRET_KEY"), null, default);
+            return credentials;
+        }
 
-    public override async Task<AccessCredentials> GetCredentialsAsync()
-    {
-        var credentials = GetCredentials();
-        await Task.Yield();
-        return credentials;
+        public override async Task<AccessCredentials> GetCredentialsAsync()
+        {
+            var credentials = GetCredentials();
+            await Task.Yield();
+            return credentials;
+        }
     }
 }

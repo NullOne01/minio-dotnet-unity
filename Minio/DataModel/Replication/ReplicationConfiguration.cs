@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -26,70 +29,71 @@ using System.Xml.Serialization;
  * https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html
  */
 
-namespace Minio.DataModel.Replication;
-
-[Serializable]
-[XmlRoot(ElementName = "ReplicationConfiguration")]
-public class ReplicationConfiguration
+namespace Minio.DataModel.Replication
 {
-    public ReplicationConfiguration()
+    [Serializable]
+    [XmlRoot(ElementName = "ReplicationConfiguration")]
+    public class ReplicationConfiguration
     {
-    }
-
-    public ReplicationConfiguration(string role, List<ReplicationRule> rules)
-    {
-        if (string.IsNullOrEmpty(role) || string.IsNullOrWhiteSpace(role))
-            throw new ArgumentNullException(nameof(Role) + " member cannot be empty.");
-        if (rules == null || rules.Count == 0)
-            throw new ArgumentNullException(nameof(Rules) + " member cannot be an empty list.");
-        if (rules.Count >= 1000)
-            throw new ArgumentOutOfRangeException(
-                nameof(Rules) + " Count of rules cannot exceed maximum limit of 1000.");
-
-        Role = role;
-        Rules = rules;
-    }
-
-    [XmlElement("Role")] public string Role { get; set; }
-
-    [XmlElement("Rule")] public List<ReplicationRule> Rules { get; set; }
-
-    public string MarshalXML()
-    {
-        XmlWriter xw = null;
-
-        var str = string.Empty;
-
-        try
+        public ReplicationConfiguration()
         {
-            var settings = new XmlWriterSettings
+        }
+
+        public ReplicationConfiguration(string role, List<ReplicationRule> rules)
+        {
+            if (string.IsNullOrEmpty(role) || string.IsNullOrWhiteSpace(role))
+                throw new ArgumentNullException(nameof(Role) + " member cannot be empty.");
+            if (rules == null || rules.Count == 0)
+                throw new ArgumentNullException(nameof(Rules) + " member cannot be an empty list.");
+            if (rules.Count >= 1000)
+                throw new ArgumentOutOfRangeException(
+                    nameof(Rules) + " Count of rules cannot exceed maximum limit of 1000.");
+
+            Role = role;
+            Rules = rules;
+        }
+
+        [XmlElement("Role")] public string Role { get; set; }
+
+        [XmlElement("Rule")] public List<ReplicationRule> Rules { get; set; }
+
+        public string MarshalXML()
+        {
+            XmlWriter xw = null;
+
+            var str = string.Empty;
+
+            try
             {
-                OmitXmlDeclaration = true
-            };
-            var ns = new XmlSerializerNamespaces();
-            ns.Add(string.Empty, string.Empty);
+                var settings = new XmlWriterSettings
+                {
+                    OmitXmlDeclaration = true
+                };
+                var ns = new XmlSerializerNamespaces();
+                ns.Add(string.Empty, string.Empty);
 
-            using var sw = new StringWriter(CultureInfo.InvariantCulture);
+                using var sw = new StringWriter(CultureInfo.InvariantCulture);
 
-            var xs = new XmlSerializer(typeof(ReplicationConfiguration), "");
-            using (xw = XmlWriter.Create(sw, settings))
-            {
-                xs.Serialize(xw, this, ns);
-                xw.Flush();
+                var xs = new XmlSerializer(typeof(ReplicationConfiguration), "");
+                using (xw = XmlWriter.Create(sw, settings))
+                {
+                    xs.Serialize(xw, this, ns);
+                    xw.Flush();
 
-                str = Utils.RemoveNamespaceInXML(sw.ToString()).Replace("\r", "").Replace("\n", "");
+                    str = Utils.RemoveNamespaceInXML(sw.ToString()).Replace("\r", "").Replace("\n", "");
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-            // throw ex;
-        }
-        finally
-        {
-            xw?.Close();
-        }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                // throw ex;
+            }
+            finally
+            {
+                xw?.Close();
+            }
 
-        return str;
+            return str;
+        }
     }
 }

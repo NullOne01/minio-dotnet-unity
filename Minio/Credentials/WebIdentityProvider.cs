@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
+using System;
+using System.IO;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Minio.DataModel;
 
@@ -24,55 +28,56 @@ using Minio.DataModel;
  * https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html
  */
 
-namespace Minio.Credentials;
-
-[Serializable]
-[XmlRoot(ElementName = "AssumeRoleWithWebIdentityResponse")]
-public class WebIdentityResponse
+namespace Minio.Credentials
 {
-    [XmlElement("Credentials")] public AccessCredentials Credentials { get; set; }
-}
-
-public class WebIdentityProvider : WebIdentityClientGrantsProvider<WebIdentityProvider>
-{
-    internal int ExpiryInSeconds { get; set; }
-    internal JsonWebToken CurrentJsonWebToken { get; set; }
-
-    public override AccessCredentials GetCredentials()
+    [Serializable]
+    [XmlRoot(ElementName = "AssumeRoleWithWebIdentityResponse")]
+    public class WebIdentityResponse
     {
-        Validate();
-        return base.GetCredentials();
+        [XmlElement("Credentials")] public AccessCredentials Credentials { get; set; }
     }
 
-    public override Task<AccessCredentials> GetCredentialsAsync()
+    public class WebIdentityProvider : WebIdentityClientGrantsProvider<WebIdentityProvider>
     {
-        Validate();
-        return base.GetCredentialsAsync();
-    }
+        internal int ExpiryInSeconds { get; set; }
+        internal JsonWebToken CurrentJsonWebToken { get; set; }
 
-    internal WebIdentityProvider WithJWTSupplier(Func<JsonWebToken> f)
-    {
-        JWTSupplier = (Func<JsonWebToken>)f.Clone();
-        Validate();
-        return this;
-    }
+        public override AccessCredentials GetCredentials()
+        {
+            Validate();
+            return base.GetCredentials();
+        }
 
-    internal override Task<HttpRequestMessageBuilder> BuildRequest()
-    {
-        Validate();
-        CurrentJsonWebToken = JWTSupplier();
-        // RoleArn to be set already.
-        WithRoleAction("AssumeRoleWithWebIdentity");
-        WithDurationInSeconds(GetDurationInSeconds(CurrentJsonWebToken.Expiry));
-        RoleSessionName ??= Utils.To8601String(DateTime.Now);
-        return base.BuildRequest();
-    }
+        public override Task<AccessCredentials> GetCredentialsAsync()
+        {
+            Validate();
+            return base.GetCredentialsAsync();
+        }
 
-    internal override AccessCredentials ParseResponse(HttpResponseMessage response)
-    {
-        Validate();
-        var credentials = base.ParseResponse(response);
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(Convert.ToString(response.Content)));
-        return (AccessCredentials)new XmlSerializer(typeof(AccessCredentials)).Deserialize(stream);
+        internal WebIdentityProvider WithJWTSupplier(Func<JsonWebToken> f)
+        {
+            JWTSupplier = (Func<JsonWebToken>)f.Clone();
+            Validate();
+            return this;
+        }
+
+        internal override Task<HttpRequestMessageBuilder> BuildRequest()
+        {
+            Validate();
+            CurrentJsonWebToken = JWTSupplier();
+            // RoleArn to be set already.
+            WithRoleAction("AssumeRoleWithWebIdentity");
+            WithDurationInSeconds(GetDurationInSeconds(CurrentJsonWebToken.Expiry));
+            RoleSessionName ??= Utils.To8601String(DateTime.Now);
+            return base.BuildRequest();
+        }
+
+        internal override AccessCredentials ParseResponse(HttpResponseMessage response)
+        {
+            Validate();
+            var credentials = base.ParseResponse(response);
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(Convert.ToString(response.Content)));
+            return (AccessCredentials)new XmlSerializer(typeof(AccessCredentials)).Deserialize(stream);
+        }
     }
 }

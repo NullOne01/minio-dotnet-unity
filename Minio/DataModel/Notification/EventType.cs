@@ -16,46 +16,47 @@
 
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-/// <summary>
-///     EventType is a S3 notification event associated to the bucket notification configuration
-/// </summary>
-public sealed class EventType
+namespace Minio.DataModel
 {
-    // Valid Event types as described in:
-    // http://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html#notification-how-to-event-types-and-destinations
-
-    public static readonly EventType ObjectCreatedAll = new("s3:ObjectCreated:*");
-    public static readonly EventType ObjectCreatedPut = new("s3:ObjectCreated:Put");
-    public static readonly EventType ObjectCreatedPost = new("s3:ObjectCreated:Post");
-    public static readonly EventType ObjectCreatedCopy = new("s3:ObjectCreated:Copy");
-
-    public static readonly EventType ObjectCreatedCompleteMultipartUpload =
-        new("s3:ObjectCreated:CompleteMultipartUpload");
-
-    public static readonly EventType ObjectAccessedGet = new("s3:ObjectAccessed:Get");
-    public static readonly EventType ObjectAccessedHead = new("s3:ObjectAccessed:Head");
-    public static readonly EventType ObjectAccessedAll = new("s3:ObjectAccessed:*");
-    public static readonly EventType ObjectRemovedAll = new("s3:ObjectRemoved:*");
-    public static readonly EventType ObjectRemovedDelete = new("s3:ObjectRemoved:Delete");
-    public static readonly EventType ObjectRemovedDeleteMarkerCreated = new("s3:ObjectRemoved:DeleteMarkerCreated");
-    public static readonly EventType ReducedRedundancyLostObject = new("s3:ReducedRedundancyLostObject");
-
-    [XmlText] public string value;
-
-    private EventType()
+    /// <summary>
+    ///     EventType is a S3 notification event associated to the bucket notification configuration
+    /// </summary>
+    public sealed class EventType
     {
-        value = null;
-    }
+        // Valid Event types as described in:
+        // http://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html#notification-how-to-event-types-and-destinations
 
-    public EventType(string value)
-    {
-        this.value = value;
-    }
+        public static readonly EventType ObjectCreatedAll = new("s3:ObjectCreated:*");
+        public static readonly EventType ObjectCreatedPut = new("s3:ObjectCreated:Put");
+        public static readonly EventType ObjectCreatedPost = new("s3:ObjectCreated:Post");
+        public static readonly EventType ObjectCreatedCopy = new("s3:ObjectCreated:Copy");
 
-    public override string ToString()
-    {
-        return string.Format("EventType= {0}", value);
+        public static readonly EventType ObjectCreatedCompleteMultipartUpload =
+            new("s3:ObjectCreated:CompleteMultipartUpload");
+
+        public static readonly EventType ObjectAccessedGet = new("s3:ObjectAccessed:Get");
+        public static readonly EventType ObjectAccessedHead = new("s3:ObjectAccessed:Head");
+        public static readonly EventType ObjectAccessedAll = new("s3:ObjectAccessed:*");
+        public static readonly EventType ObjectRemovedAll = new("s3:ObjectRemoved:*");
+        public static readonly EventType ObjectRemovedDelete = new("s3:ObjectRemoved:Delete");
+        public static readonly EventType ObjectRemovedDeleteMarkerCreated = new("s3:ObjectRemoved:DeleteMarkerCreated");
+        public static readonly EventType ReducedRedundancyLostObject = new("s3:ReducedRedundancyLostObject");
+
+        [XmlText] public string value;
+
+        private EventType()
+        {
+            value = null;
+        }
+
+        public EventType(string value)
+        {
+            this.value = value;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("EventType= {0}", value);
+        }
     }
 }

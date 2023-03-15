@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-[XmlRoot(ElementName = "InitiateMultipartUploadResult", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
-public class InitiateMultipartUploadResult
+namespace Minio.DataModel
 {
-    public string UploadId { get; set; }
+    [Serializable]
+    [XmlRoot(ElementName = "InitiateMultipartUploadResult", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
+    public class InitiateMultipartUploadResult
+    {
+        public string UploadId { get; set; }
+    }
 }

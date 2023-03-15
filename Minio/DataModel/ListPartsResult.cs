@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-[Serializable]
-[XmlRoot(ElementName = "ListPartsResult", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
-public class ListPartsResult
+namespace Minio.DataModel
 {
-    public int NextPartNumberMarker { get; set; }
-    public bool IsTruncated { get; set; }
+    [Serializable]
+    [XmlRoot(ElementName = "ListPartsResult", Namespace = "http://s3.amazonaws.com/doc/2006-03-01/")]
+    public class ListPartsResult
+    {
+        public int NextPartNumberMarker { get; set; }
+        public bool IsTruncated { get; set; }
+    }
 }

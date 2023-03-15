@@ -14,41 +14,44 @@
  * limitations under the License.
  */
 
-namespace Minio.DataModel;
+using System;
 
-/// <summary>
-///     QueueConfig carries one single queue notification configuration
-/// </summary>
-[Serializable]
-public class QueueConfig : NotificationConfiguration
+namespace Minio.DataModel
 {
-    public QueueConfig()
+    /// <summary>
+    ///     QueueConfig carries one single queue notification configuration
+    /// </summary>
+    [Serializable]
+    public class QueueConfig : NotificationConfiguration
     {
-    }
+        public QueueConfig()
+        {
+        }
 
-    public QueueConfig(string arn) : base(arn)
-    {
-        Queue = arn;
-    }
+        public QueueConfig(string arn) : base(arn)
+        {
+            Queue = arn;
+        }
 
-    public QueueConfig(Arn arn) : base(arn)
-    {
-        Queue = arn.ToString();
-    }
+        public QueueConfig(Arn arn) : base(arn)
+        {
+            Queue = arn.ToString();
+        }
 
-    public string Queue { get; set; }
+        public string Queue { get; set; }
 
-    // Implement equality for this object
-    public override bool Equals(object obj)
-    {
-        var other = (QueueConfig)obj;
-        // If parameter is null return false.
-        if (other == null) return false;
-        return other.Queue.Equals(Queue);
-    }
+        // Implement equality for this object
+        public override bool Equals(object obj)
+        {
+            var other = (QueueConfig)obj;
+            // If parameter is null return false.
+            if (other == null) return false;
+            return other.Queue.Equals(Queue);
+        }
 
-    public override int GetHashCode()
-    {
-        return Queue.GetHashCode();
+        public override int GetHashCode()
+        {
+            return Queue.GetHashCode();
+        }
     }
 }

@@ -14,49 +14,54 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Minio.DataModel;
 
-namespace Minio.Examples.Cases;
-
-internal static class PutObject
+namespace Minio.Examples.Cases
 {
-    private const int MB = 1024 * 1024;
-
-    // Put an object from a local stream into bucket
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name",
-        string objectName = "my-object-name",
-        string fileName = "location-of-file",
-        IServerSideEncryption sse = null)
+    internal static class PutObject
     {
-        try
-        {
-            var bs = await File.ReadAllBytesAsync(fileName).ConfigureAwait(false);
-            Console.WriteLine("Running example for API: PutObjectAsync");
-            using (var filestream = new MemoryStream(bs))
-            {
-                var fileInfo = new FileInfo(fileName);
-                var metaData = new Dictionary<string, string>
-                {
-                    { "Test-Metadata", "Test  Test" }
-                };
-                var args = new PutObjectArgs()
-                    .WithBucket(bucketName)
-                    .WithObject(objectName)
-                    .WithStreamData(filestream)
-                    .WithObjectSize(filestream.Length)
-                    .WithContentType("application/octet-stream")
-                    .WithHeaders(metaData)
-                    .WithServerSideEncryption(sse);
-                await minio.PutObjectAsync(args).ConfigureAwait(false);
-            }
+        private const int MB = 1024 * 1024;
 
-            Console.WriteLine($"Uploaded object {objectName} to bucket {bucketName}");
-            Console.WriteLine();
-        }
-        catch (Exception e)
+        // Put an object from a local stream into bucket
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name",
+            string objectName = "my-object-name",
+            string fileName = "location-of-file",
+            IServerSideEncryption sse = null)
         {
-            Console.WriteLine($"[Bucket]  Exception: {e}");
+            try
+            {
+                var bs = await File.ReadAllBytesAsync(fileName).ConfigureAwait(false);
+                Console.WriteLine("Running example for API: PutObjectAsync");
+                using (var filestream = new MemoryStream(bs))
+                {
+                    var fileInfo = new FileInfo(fileName);
+                    var metaData = new Dictionary<string, string>
+                    {
+                        { "Test-Metadata", "Test  Test" }
+                    };
+                    var args = new PutObjectArgs()
+                        .WithBucket(bucketName)
+                        .WithObject(objectName)
+                        .WithStreamData(filestream)
+                        .WithObjectSize(filestream.Length)
+                        .WithContentType("application/octet-stream")
+                        .WithHeaders(metaData)
+                        .WithServerSideEncryption(sse);
+                    await minio.PutObjectAsync(args).ConfigureAwait(false);
+                }
+
+                Console.WriteLine($"Uploaded object {objectName} to bucket {bucketName}");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Bucket]  Exception: {e}");
+            }
         }
     }
 }

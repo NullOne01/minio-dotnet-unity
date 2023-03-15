@@ -14,46 +14,50 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Minio.DataModel;
 
-namespace Minio.Examples.Cases;
-
-internal static class CopyObject
+namespace Minio.Examples.Cases
 {
-    // Copy object from one bucket to another
-    public static async Task Run(IMinioClient minio,
-        string fromBucketName = "from-bucket-name",
-        string fromObjectName = "from-object-name",
-        string destBucketName = "dest-bucket",
-        string destObjectName = " to-object-name",
-        IServerSideEncryption sseSrc = null,
-        IServerSideEncryption sseDest = null)
+    internal static class CopyObject
     {
-        try
+        // Copy object from one bucket to another
+        public static async Task Run(IMinioClient minio,
+            string fromBucketName = "from-bucket-name",
+            string fromObjectName = "from-object-name",
+            string destBucketName = "dest-bucket",
+            string destObjectName = " to-object-name",
+            IServerSideEncryption sseSrc = null,
+            IServerSideEncryption sseDest = null)
         {
-            Console.WriteLine("Running example for API: CopyObjectAsync");
-            var metaData = new Dictionary<string, string>
+            try
             {
-                { "Test-Metadata", "Test  Test" }
-            };
-            // Optionally pass copy conditions
-            var cpSrcArgs = new CopySourceObjectArgs()
-                .WithBucket(fromBucketName)
-                .WithObject(fromObjectName)
-                .WithServerSideEncryption(sseSrc);
-            var args = new CopyObjectArgs()
-                .WithBucket(destBucketName)
-                .WithObject(destObjectName)
-                .WithCopyObjectSource(cpSrcArgs)
-                .WithServerSideEncryption(sseDest);
-            await minio.CopyObjectAsync(args).ConfigureAwait(false);
-            Console.WriteLine("Copied object {0} from bucket {1} to bucket {2}", fromObjectName, fromBucketName,
-                destBucketName);
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("[Bucket]  Exception: {0}", e);
+                Console.WriteLine("Running example for API: CopyObjectAsync");
+                var metaData = new Dictionary<string, string>
+                {
+                    { "Test-Metadata", "Test  Test" }
+                };
+                // Optionally pass copy conditions
+                var cpSrcArgs = new CopySourceObjectArgs()
+                    .WithBucket(fromBucketName)
+                    .WithObject(fromObjectName)
+                    .WithServerSideEncryption(sseSrc);
+                var args = new CopyObjectArgs()
+                    .WithBucket(destBucketName)
+                    .WithObject(destObjectName)
+                    .WithCopyObjectSource(cpSrcArgs)
+                    .WithServerSideEncryption(sseDest);
+                await minio.CopyObjectAsync(args).ConfigureAwait(false);
+                Console.WriteLine("Copied object {0} from bucket {1} to bucket {2}", fromObjectName, fromBucketName,
+                    destBucketName);
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("[Bucket]  Exception: {0}", e);
+            }
         }
     }
 }

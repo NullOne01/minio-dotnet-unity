@@ -14,7 +14,6 @@ MinioClient minioClient = new MinioClient()
 
 ## AWS S3
 
-
 ```cs
 MinioClient minioClient = new MinioClient()
                               .WithEndpoint("s3.amazonaws.com")
@@ -50,8 +49,6 @@ MinioClient minioClient = new MinioClient()
 | [`getBucketReplication`](#getBucketReplication)           |                                                     |                                               |                                                               |
 | [`removeBucketReplication`](#removeBucketReplication)     |                                                     |                                               |                                                               |
 
-
-
 ## 1. Constructors
 
 <a name="constructors"></a>
@@ -62,20 +59,24 @@ MinioClient minioClient = new MinioClient()
 | Creates MinIO client object with given endpoint.AccessKey, secretKey, region and sessionToken are optional parameters, and can be omitted for anonymous access. |
 | The client object uses Http access by default. To use Https, chain method WithSSL() to client object to use secure transfer protocol                            |
 
-
 __Parameters__
 
 | Param          | Type     | Description                                                                                                                     |
 |----------------|----------|---------------------------------------------------------------------------------------------------------------------------------|
-| `endpoint`     | _string_ | endPoint is an URL, domain name, IPv4 address or IPv6 address.Valid endpoints are listed below:                                 |
+| `endpoint`     | _
+string_ | endPoint is an URL, domain name, IPv4 address or IPv6 address.Valid endpoints are listed below:                                 |
 |                |          | s3.amazonaws.com                                                                                                                |
 |                |          | play.min.io                                                                                                                     |
 |                |          | localhost                                                                                                                       |
 |                |          | play.min.io                                                                                                                     |
-| `accessKey`    | _string_ | accessKey is like user-id that uniquely identifies your account.This field is optional and can be omitted for anonymous access. |
-| `secretKey`    | _string_ | secretKey is the password to your account.This field is optional and can be omitted for anonymous access.                       |
-| `region`       | _string_ | region to which calls should be made.This field is optional and can be omitted.                                                 |
-| `sessionToken` | _string_ | sessionToken needs to be set if temporary access credentials are used                                                           |
+| `accessKey`    | _
+string_ | accessKey is like user-id that uniquely identifies your account.This field is optional and can be omitted for anonymous access. |
+| `secretKey`    | _
+string_ | secretKey is the password to your account.This field is optional and can be omitted for anonymous access.                       |
+| `region`       | _
+string_ | region to which calls should be made.This field is optional and can be omitted.                                                 |
+| `sessionToken` | _
+string_ | sessionToken needs to be set if temporary access credentials are used                                                           |
 
 | Secure Access (TLS)                                                      |
 |--------------------------------------------------------------------------|
@@ -95,21 +96,17 @@ __Parameters__
 | To use non-anonymous access, chain method WithCredentials() to the client object along with the access key & secret key.                     |
 | Finally chain the method Build() to get the finally built client object.                                                                     |
 
-
 | Endpoint                                                                            |
 |-----------------------------------------------------------------------------|
 | `Chain .WithEndpoint() to MinIO Client object to initialize the endpoint. ` |
-
 
 | Return Type     | Exceptions         |
 |:----------------|:-------------------|
 | ``MinioClient`` | Listed Exceptions: |
 
-
 __Examples__
 
 ### MinIO
-
 
 ```cs
 // 1. Using Builder with public MinioClient(), Endpoint, Credentials & Secure (HTTPS) connection
@@ -152,19 +149,23 @@ MinioClient s3Client = new MinioClient()
 ## 2. Bucket operations
 
 <a name="makeBucket"></a>
+
 ### MakeBucketAsync(string bucketName, string location = "us-east-1")
+
 `Task MakeBucketAsync(string bucketName, string location = "us-east-1", CancellationToken cancellationToken = default(CancellationToken))`
 
 Creates a new bucket.
-
 
 __Parameters__
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``bucketName``        | _string_                             | Name of the bucket                                         |
-| ``region``            | _string_                             | Optional parameter. Defaults to us-east-1 for AWS requests |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
+| ``bucketName``        | _
+string_                             | Name of the bucket                                         |
+| ``region``            | _
+string_                             | Optional parameter. Defaults to us-east-1 for AWS requests |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions                                                |
 |:------------|:----------------------------------------------------------|
@@ -175,9 +176,7 @@ __Parameters__
 |             | ``RedirectionException`` : upon redirection by server     |
 |             | ``InternalClientException`` : upon internal library error |
 
-
 __Example__
-
 
 ```cs
 try
@@ -202,17 +201,19 @@ catch (MinioException e)
 ```
 
 ### MakeBucketAsync(MakeBucketArgs args)
+
 `Task MakeBucketAsync(MakeBucketArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Creates a new bucket.
-
 
 __Parameters__
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _MakeBucketArgs_                     | Arguments Object - name, location.                         |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
+| ``args``              | _
+MakeBucketArgs_                     | Arguments Object - name, location.                         |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions                                                |
 |:------------|:----------------------------------------------------------|
@@ -223,9 +224,7 @@ __Parameters__
 |             | ``RedirectionException`` : upon redirection by server     |
 |             | ``InternalClientException`` : upon internal library error |
 
-
 __Example__
-
 
 ```cs
 try
@@ -249,8 +248,8 @@ catch (MinioException e)
 }
 ```
 
-
 <a name="listBuckets"></a>
+
 ### ListBucketsAsync()
 
 `Task<ListAllMyBucketsResult> ListBucketsAsync(CancellationToken cancellationToken = default(CancellationToken))`
@@ -259,7 +258,8 @@ Lists all buckets.
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 |                       |                                      |                                                            |
 
 | Return Type                                                       | Exceptions                                                                   |
@@ -272,9 +272,7 @@ Lists all buckets.
 |                                                                   | ``ErrorResponseException`` : upon unsuccessful execution                     |
 |                                                                   | ``InternalClientException`` : upon internal library error                    |
 
-
 __Example__
-
 
 ```cs
 try
@@ -293,21 +291,21 @@ catch (MinioException e)
 ```
 
 <a name="bucketExists"></a>
+
 ### BucketExistsAsync(string bucketName)
 
 `Task<bool> BucketExistsAsync(string bucketName, CancellationToken cancellationToken = default(CancellationToken))`
 
 Checks if a bucket exists.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``bucketName``        | _string_                             | Name of the bucket.                                        |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``bucketName``        | _
+string_                             | Name of the bucket.                                        |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type                                | Exceptions                                                |
 |:-------------------------------------------|:----------------------------------------------------------|
@@ -318,10 +316,7 @@ __Parameters__
 |                                            | ``ErrorResponseException`` : upon unsuccessful execution  |
 |                                            | ``InternalClientException`` : upon internal library error |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -336,22 +331,20 @@ catch (MinioException e)
 }
 ```
 
-
 ### BucketExistsAsync(BucketExistsArgs)
 
 `Task<bool> BucketExistsAsync(BucketExistsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Checks if a bucket exists.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _BucketExistsArgs_                   | Argument object - bucket name.                             |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+BucketExistsArgs_                   | Argument object - bucket name.                             |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type                                | Exceptions                                                |
 |:-------------------------------------------|:----------------------------------------------------------|
@@ -362,10 +355,7 @@ __Parameters__
 |                                            | ``ErrorResponseException`` : upon unsuccessful execution  |
 |                                            | ``InternalClientException`` : upon internal library error |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -381,24 +371,24 @@ catch (MinioException e)
 ```
 
 <a name="removeBucket"></a>
+
 ### RemoveBucketAsync(string bucketName)
 
 `Task RemoveBucketAsync(string bucketName, CancellationToken cancellationToken = default(CancellationToken))`
 
 Removes a bucket.
 
-
-NOTE: -  removeBucket does not delete the objects inside the bucket. The objects need to be deleted using the removeObject API.
-
+NOTE: - removeBucket does not delete the objects inside the bucket. The objects need to be deleted using the
+removeObject API.
 
 __Parameters__
 
-
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``bucketName``        | _string_                             | Name of the bucket                                         |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``bucketName``        | _
+string_                             | Name of the bucket                                         |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions                                                |
 |:------------|:----------------------------------------------------------|
@@ -410,9 +400,7 @@ __Parameters__
 |             | ``InternalClientException`` : upon internal library error |
 |             | ``BucketNotFoundException`` : upon missing bucket         |
 
-
 __Example__
-
 
 ```cs
 try
@@ -442,18 +430,17 @@ catch(MinioException e)
 
 Removes a bucket.
 
-
-NOTE: -  removeBucket does not delete the objects inside the bucket. The objects need to be deleted using the removeObject API.
-
+NOTE: - removeBucket does not delete the objects inside the bucket. The objects need to be deleted using the
+removeObject API.
 
 __Parameters__
 
-
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _RemoveBucketArgs_                   | Arguments Object - bucket name                             |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+RemoveBucketArgs_                   | Arguments Object - bucket name                             |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions                                                |
 |:------------|:----------------------------------------------------------|
@@ -465,9 +452,7 @@ __Parameters__
 |             | ``InternalClientException`` : upon internal library error |
 |             | ``BucketNotFoundException`` : upon missing bucket         |
 
-
 __Example__
-
 
 ```cs
 try
@@ -492,6 +477,7 @@ catch(MinioException e)
 ```
 
 <a name="getVersioning"></a>
+
 ### public async Task<VersioningConfiguration> GetVersioningAsync(GetVersioningArgs args)
 
 `Task<VersioningConfiguration> GetVersioningAsync(GetVersioningArgs args, CancellationToken cancellationToken = default(CancellationToken))`
@@ -500,20 +486,18 @@ Get versioning information for a bucket.
 
 __Parameters__
 
-
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _GetVersioningArgs_                  | Arguments Object - bucket name.                            |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+GetVersioningArgs_                  | Arguments Object - bucket name.                            |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type                                                                                   | Exceptions |
 |:----------------------------------------------------------------------------------------------|:-----------|
 | ``VersioningConfiguration``:VersioningConfiguration with information populated from response. | _None_     |
 
-
 __Example__
-
 
 ```cs
 try
@@ -537,8 +521,8 @@ catch (MinioException e)
 }
 ```
 
-
 <a name="setVersioning"></a>
+
 ### public async Task SetVersioningAsync(SetVersioningArgs args)
 
 `Task SetVersioningAsync(SetVersioningArgs args, CancellationToken cancellationToken = default(CancellationToken))`
@@ -547,20 +531,18 @@ Set versioning to Enabled or Suspended for a bucket.
 
 __Parameters__
 
-
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _SetVersioningArgs_                  | Arguments Object - bucket name, versioning status.         |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+SetVersioningArgs_                  | Arguments Object - bucket name, versioning status.         |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions |
 |:------------|:-----------|
 | ``Task``:   | _None_     |
 
-
 __Example__
-
 
 ```cs
 try
@@ -586,24 +568,22 @@ catch (MinioException e)
 }
 ```
 
-
-
 <a name="setBucketEncryption"></a>
+
 ### SetBucketEncryptionAsync(SetBucketEncryptionArgs args)
 
 `Task SetBucketEncryptionAsync(SetBucketEncryptionArgs args, CancellationToken cancellationToken = default(CancellationToken));`
 
 Sets the Bucket Encryption Configuration of a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                   |
 |:----------------------|:-------------------------------------|:------------------------------------------------------------------------------|
-| ``args``              | _SetBucketEncryptionArgs_            | SetBucketEncryptionArgs Argument Object with bucket, encryption configuration |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                    |
-
+| ``args``              | _
+SetBucketEncryptionArgs_            | SetBucketEncryptionArgs Argument Object with bucket, encryption configuration |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                    |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -614,10 +594,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -635,21 +612,21 @@ catch(MinioException e)
 ```
 
 <a name="getBucketEncryption"></a>
+
 ### GetBucketEncryptionAsync(GetBucketEncryptionArgs args)
 
 `Task<ServerSideEncryptionConfiguration> GetBucketEncryptionAsync(GetBucketEncryptionArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Gets the Bucket Encryption configuration of the bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _GetBucketEncryptionArgs_            | GetBucketEncryptionArgs Argument Object with bucket name   |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+GetBucketEncryptionArgs_            | GetBucketEncryptionArgs Argument Object with bucket name   |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type                                 | Exceptions                                                                            |
 |:--------------------------------------------|:--------------------------------------------------------------------------------------|
@@ -663,7 +640,6 @@ __Parameters__
 __ServerSideEncryptionConfiguration__  object which contains the bucket encryption configuration.
 
 __Example__
-
 
 ```cs
 try
@@ -680,23 +656,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="removeBucketEncryption"></a>
+
 ### RemoveBucketEncryptionAsync(RemoveBucketEncryptionArgs args)
 
 `Task RemoveBucketEncryptionAsync(RemoveBucketEncryptionArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Remove the Bucket Encryption configuration of an object.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                 |
 |:----------------------|:-------------------------------------|:------------------------------------------------------------|
-| ``args``              | _RemoveBucketEncryptionArgs_         | RemoveBucketEncryptionArgs Argument Object with bucket name |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)  |
-
+| ``args``              | _
+RemoveBucketEncryptionArgs_         | RemoveBucketEncryptionArgs Argument Object with bucket name |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)  |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -707,10 +682,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -728,21 +700,21 @@ catch(MinioException e)
 ```
 
 <a name="setBucketTags"></a>
+
 ### SetBucketTagsAsync(SetBucketTagsArgs args)
 
 `Task SetBucketTagsAsync(SetBucketTagsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Sets tags to a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _SetBucketTagsArgs_                  | SetBucketTagsArgs Argument Object with bucket, tags to set |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+SetBucketTagsArgs_                  | SetBucketTagsArgs Argument Object with bucket, tags to set |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -753,9 +725,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
 __Example__
-
 
 ```cs
 try
@@ -774,21 +744,21 @@ catch(MinioException e)
 ```
 
 <a name="getBucketTags"></a>
+
 ### GetBucketTagsAsync(GetBucketTagsArgs args)
 
 `Task<Tagging> GetBucketTagsAsync(GetBucketTagsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Gets tags of a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _GetBucketTagsArgs_                  | GetBucketTagsArgs Argument Object with bucket name         |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+GetBucketTagsArgs_                  | GetBucketTagsArgs Argument Object with bucket name         |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type                                                         | Exceptions                                                                            |
 |:--------------------------------------------------------------------|:--------------------------------------------------------------------------------------|
@@ -799,10 +769,7 @@ __Parameters__
 |                                                                     | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |                                                                     | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -819,24 +786,23 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="removeBucketTags"></a>
+
 ### RemoveBucketTagsAsync(RemoveBucketTagsArgs args)
 
 `Task RemoveBucketTagsAsync(RemoveBucketTagsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Deletes tags of a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _RemoveBucketTagsArgs_               | RemoveBucketTagsArgs Argument Object with bucket name      |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
+| ``args``              | _
+RemoveBucketTagsArgs_               | RemoveBucketTagsArgs Argument Object with bucket name      |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 |                       |                                      |                                                            |
-
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -847,10 +813,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -867,23 +830,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="setBucketLifecycle"></a>
+
 ### SetBucketLifecycleAsync(SetBucketLifecycleArgs args)
 
 `Task SetBucketLifecycleAsync(SetBucketLifecycleArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Sets Lifecycle configuration to a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                             |
 |:----------------------|:-------------------------------------|:----------------------------------------------------------------------------------------|
-| ``args``              | _SetBucketLifecycleArgs_             | SetBucketLifecycleArgs Argument Object with bucket name, Lifecycle configuration to set |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                              |
-
+| ``args``              | _
+SetBucketLifecycleArgs_             | SetBucketLifecycleArgs Argument Object with bucket name, Lifecycle configuration to set |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                              |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -894,10 +856,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -916,21 +875,21 @@ catch(MinioException e)
 ```
 
 <a name="getBucketLifecycle"></a>
+
 ### GetBucketLifecycleAsync(GetBucketLifecycleArgs args)
 
 `Task<LifecycleConfiguration> GetBucketLifecycleAsync(GetBucketLifecycleArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Gets Lifecycle configuration of a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _GetBucketLifecycleArgs_             | GetBucketLifecycleArgs Argument Object with bucket name    |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+GetBucketLifecycleArgs_             | GetBucketLifecycleArgs Argument Object with bucket name    |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type                                                                                                         | Exceptions                                                                            |
 |:--------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------|
@@ -941,10 +900,7 @@ __Parameters__
 |                                                                                                                     | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |                                                                                                                     | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -961,23 +917,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="removeBucketLifecycle"></a>
+
 ### RemoveBucketLifecycleAsync(RemoveBucketLifecycleArgs args)
 
 `Task RemoveBucketLifecycleAsync(RemoveBucketLifecycleArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Deletes Lifecycle configuration of a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _RemoveBucketLifecycleArgs_          | RemoveBucketLifecycleArgs Argument Object with bucket name |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+RemoveBucketLifecycleArgs_          | RemoveBucketLifecycleArgs Argument Object with bucket name |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -988,10 +943,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -1008,24 +960,22 @@ catch(MinioException e)
 }
 ```
 
-
-
 <a name="setBucketReplication"></a>
+
 ### SetBucketReplicationAsync(SetBucketReplicationArgs args)
 
 `Task SetBucketReplicationAsync(SetBucketReplicationArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Sets Replication configuration to a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                                 |
 |:----------------------|:-------------------------------------|:--------------------------------------------------------------------------------------------|
-| ``args``              | _SetBucketReplicationArgs_           | SetBucketReplicationArgs Argument Object with bucket name, Replication configuration to set |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                  |
-
+| ``args``              | _
+SetBucketReplicationArgs_           | SetBucketReplicationArgs Argument Object with bucket name, Replication configuration to set |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                  |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -1036,10 +986,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -1058,22 +1005,21 @@ catch(MinioException e)
 ```
 
 <a name="getBucketReplication"></a>
+
 ### GetBucketReplicationAsync(GetBucketReplicationArgs args)
 
 `Task<ReplicationConfiguration> GetBucketReplicationAsync(GetBucketReplicationArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Gets Replication configuration of a bucket.
 
-
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _GetBucketReplicationArgs_           | GetBucketReplicationArgs Argument Object with bucket name  |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+GetBucketReplicationArgs_           | GetBucketReplicationArgs Argument Object with bucket name  |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type                                                                                                               | Exceptions                                                                            |
 |:--------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------|
@@ -1084,10 +1030,7 @@ __Parameters__
 |                                                                                                                           | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |                                                                                                                           | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -1104,23 +1047,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="removeBucketReplication"></a>
+
 ### RemoveBucketReplicationAsync(RemoveBucketReplicationArgs args)
 
 `Task RemoveBucketReplicationAsync(RemoveBucketReplicationArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Deletes Replication configuration of a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                  |
 |:----------------------|:-------------------------------------|:-------------------------------------------------------------|
-| ``args``              | _RemoveBucketReplicationArgs_        | RemoveBucketReplicationArgs Argument Object with bucket name |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)   |
-
+| ``args``              | _
+RemoveBucketReplicationArgs_        | RemoveBucketReplicationArgs Argument Object with bucket name |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)   |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -1131,10 +1073,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -1151,8 +1090,8 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="listObjects"></a>
+
 ### ListObjectsAsync(ListObjectArgs args)
 
 `IObservable<Item> ListObjectsAsync(ListObjectArgs args, CancellationToken cancellationToken = default(CancellationToken))`
@@ -1161,20 +1100,18 @@ Lists all objects (with version IDs, if existing) in a bucket.
 
 __Parameters__
 
-
 | Param                 | Type                                 | Description                                                                                |
 |:----------------------|:-------------------------------------|:-------------------------------------------------------------------------------------------|
-| ``args``              | _ListObjectArgs_                     | ListObjectArgs object - encapsulates bucket name, prefix, show recursively, show versions. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                 |
-
+| ``args``              | _
+ListObjectArgs_                     | ListObjectArgs object - encapsulates bucket name, prefix, show recursively, show versions. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                 |
 
 | Return Type                                   | Exceptions |
 |:----------------------------------------------|:-----------|
 | ``IObservable<Item>``:an Observable of Items. | _None_     |
 
-
 __Example__
-
 
 ```cs
 try
@@ -1236,24 +1173,22 @@ catch (MinioException e)
 
 ```
 
-
-
 <a name="setObjectLock"></a>
+
 ### SetObjectLockConfigurationAsync(SetObjectLockConfigurationArgs args)
 
 `Task SetObjectLockConfigurationAsync(SetObjectLockConfigurationArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Sets object-lock configuration in a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                           |
 |:----------------------|:-------------------------------------|:--------------------------------------------------------------------------------------|
-| ``args``              | _SetObjectLockConfigurationArgs_     | SetObjectLockConfigurationArgs Argument Object with bucket, lock configuration to set |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                            |
-
+| ``args``              | _
+SetObjectLockConfigurationArgs_     | SetObjectLockConfigurationArgs Argument Object with bucket, lock configuration to set |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                            |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -1264,10 +1199,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -1286,24 +1218,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="getObjectLock"></a>
+
 ### GetObjectLockConfigurationAsync(GetObjectLockConfigurationArgs args)
 
 `Task<ObjectLockConfiguration> GetObjectLockConfigurationAsync(GetObjectLockConfigurationArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Gets object-lock configuration of a bucket.
 
-
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                     |
 |:----------------------|:-------------------------------------|:----------------------------------------------------------------|
-| ``args``              | _GetObjectLockConfigurationArgs_     | GetObjectLockConfigurationArgs Argument Object with bucket name |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)      |
-
+| ``args``              | _
+GetObjectLockConfigurationArgs_     | GetObjectLockConfigurationArgs Argument Object with bucket name |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)      |
 
 | Return Type                                                                                                                | Exceptions                                                                            |
 |:---------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------|
@@ -1314,10 +1244,7 @@ __Parameters__
 |                                                                                                                            | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |                                                                                                                            | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -1334,24 +1261,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="removeObjectLock"></a>
+
 ### RemoveObjectLockConfigurationAsync(RemoveObjectLockConfigurationArgs args)
 
 `Task RemoveObjectLockConfigurationAsync(RemoveObjectLockConfigurationArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Removes object-lock configuration on a bucket.
 
-
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                        |
 |:----------------------|:-------------------------------------|:-------------------------------------------------------------------|
-| ``args``              | _RemoveObjectLockConfigurationArgs_  | RemoveObjectLockConfigurationArgs Argument Object with bucket name |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)         |
-
+| ``args``              | _
+RemoveObjectLockConfigurationArgs_  | RemoveObjectLockConfigurationArgs Argument Object with bucket name |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)         |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -1362,10 +1287,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -1383,31 +1305,28 @@ catch(MinioException e)
 
 ```
 
-
 <a name="listIncompleteUploads"></a>
+
 ### ListIncompleteUploads(ListIncompleteUploadsArgs args)
 
 `IObservable<Upload> ListIncompleteUploads(ListIncompleteUploadsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Lists partially uploaded objects in a bucket.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                            |
 |:----------------------|:-------------------------------------|:---------------------------------------------------------------------------------------|
-| ``args``              | _ListIncompleteUploadsArgs_          | ListIncompleteUploadsArgs object - encapsulates bucket name, prefix, show recursively. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
-
+| ``args``              | _
+ListIncompleteUploadsArgs_          | ListIncompleteUploadsArgs object - encapsulates bucket name, prefix, show recursively. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
 
 | Return Type                                        | Exceptions |
 |:---------------------------------------------------|:-----------|
 | ``IObservable<Upload> ``: an Observable of Upload. | _None_     |
 
-
 __Example__
-
 
 ```cs
 try
@@ -1438,8 +1357,8 @@ catch (MinioException e)
 }
 ```
 
-
 <a name="listenBucketNotifications"></a>
+
 ### ListenBucketNotificationsAsync(ListenBucketNotificationsArgs args)
 
 `IObservable<MinioNotificationRaw> ListenBucketNotificationsAsync(ListenBucketNotificationsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
@@ -1448,20 +1367,20 @@ Subscribes to bucket change notifications (a Minio-only extension)
 
 __Parameters__
 
-
 | Param                 | Type                                 | Description                                                                                      |
 |:----------------------|:-------------------------------------|:-------------------------------------------------------------------------------------------------|
-| ``args``              | _ListenBucketNotificationsArgs_      | ListenBucketNotificationsArgs object - encapsulates bucket name, list of events, prefix, suffix. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                       |
-
+| ``args``              | _
+ListenBucketNotificationsArgs_      | ListenBucketNotificationsArgs object - encapsulates bucket name, list of events, prefix, suffix. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                       |
 
 | Return Type                                                                                                                                                                                                       | Exceptions |
 |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-----------|
-| ``IObservable<MinioNotificationRaw>``: an Observable of _MinioNotificationRaw_, which contain the raw JSON notifications. Use the _MinioNotification_ class to deserialise using the JSON library of your choice. | _None_     |
-
+| ``IObservable<MinioNotificationRaw>``: an Observable of _
+MinioNotificationRaw_, which contain the raw JSON notifications. Use the _
+MinioNotification_ class to deserialise using the JSON library of your choice. | _None_     |
 
 __Example__
-
 
 ```cs
 try
@@ -1489,19 +1408,21 @@ catch (MinioException e)
 ```
 
 <a name="getBucketPolicy"></a>
+
 ### GetPolicyAsync(GetPolicyArgs args)
+
 `Task<String> GetPolicyAsync(GetPolicyArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Get bucket policy.
-
 
 __Parameters__
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _GetPolicyArgs_                      | GetPolicyArgs object encapsulating bucket name.            |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+GetPolicyArgs_                      | GetPolicyArgs object encapsulating bucket name.            |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type                                                                    | Exceptions                                                     |
 |:-------------------------------------------------------------------------------|:---------------------------------------------------------------|
@@ -1513,9 +1434,7 @@ __Parameters__
 |                                                                                | ``InternalClientException`` : upon internal library error.     |
 |                                                                                | ``BucketNotFoundException`` : upon missing bucket              |
 
-
 __Example__
-
 
 ```cs
 try
@@ -1532,7 +1451,9 @@ catch (MinioException e)
 ```
 
 <a name="setBucketPolicy"></a>
+
 ### SetPolicyAsync(SetPolicyArgs args)
+
 `Task SetPolicyAsync(SetPolicyArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Set policy on bucket.
@@ -1541,10 +1462,11 @@ __Parameters__
 
 | Param                 | Type                                 | Description                                                              |
 |:----------------------|:-------------------------------------|:-------------------------------------------------------------------------|
-| ``args``              | _SetPolicyArgs_                      | SetPolicyArgs object encapsulating bucket name, Policy as a json string. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)               |
+| ``args``              | _
+SetPolicyArgs_                      | SetPolicyArgs object encapsulating bucket name, Policy as a json string. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)               |
 |                       |                                      |                                                                          |
-
 
 | Return Type | Exceptions                                                    |
 |:------------|:--------------------------------------------------------------|
@@ -1554,8 +1476,6 @@ __Parameters__
 |             | ``InternalClientException`` : upon internal library error     |
 |             | ``InvalidBucketNameException `` : upon invalid bucket name    |
 |             | ``InvalidObjectPrefixException`` : upon invalid object prefix |
-
-
 
 __Example__
 
@@ -1574,9 +1494,10 @@ catch (MinioException e)
 }
 ```
 
-
 <a name="setBucketNotification"></a>
+
 ### SetBucketNotificationAsync(SetBucketNotificationsArgs args)
+
 `Task SetBucketNotificationAsync(SetBucketNotificationsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Sets notification configuration for a given bucket
@@ -1585,9 +1506,10 @@ __Parameters__
 
 | Param                 | Type                                 | Description                                                                                     |
 |:----------------------|:-------------------------------------|:------------------------------------------------------------------------------------------------|
-| ``args``              | _SetBucketNotificationsArgs_         | SetBucketNotificationsArgs object encapsulating bucket name, notification configuration object. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                      |
-
+| ``args``              | _
+SetBucketNotificationsArgs_         | SetBucketNotificationsArgs object encapsulating bucket name, notification configuration object. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                      |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -1598,9 +1520,8 @@ __Parameters__
 |             | ``InvalidOperationException``: upon unsuccessful serialization of notification object |
 |             |                                                                                       |
 
-
-
 __Example__
+
 ```cs
 try
 {
@@ -1631,19 +1552,21 @@ catch (MinioException e)
 ```
 
 <a name="getBucketNotification"></a>
+
 ### GetBucketNotificationAsync(GetBucketNotificationsArgs args)
+
 `Task<BucketNotification> GetBucketNotificationAsync(GetBucketNotificationsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Get bucket notification configuration
-
 
 __Parameters__
 
 | Param                 | Type                                 | Description                                                  |
 |:----------------------|:-------------------------------------|:-------------------------------------------------------------|
-| ``args``              | _GetBucketNotificationsArgs_         | GetBucketNotificationsArgs object encapsulating bucket name. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)   |
-
+| ``args``              | _
+GetBucketNotificationsArgs_         | GetBucketNotificationsArgs object encapsulating bucket name. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)   |
 
 | Return Type                                                                          | Exceptions                                                                   |
 |:-------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------|
@@ -1655,9 +1578,7 @@ __Parameters__
 |                                                                                      | ``BucketNotFoundException`` : upon missing bucket                            |
 |                                                                                      | ``InvalidOperationException``: upon unsuccessful deserialization of xml data |
 
-
 __Example__
-
 
 ```cs
 try
@@ -1674,20 +1595,22 @@ catch (MinioException e)
 ```
 
 <a name="removeAllBucketNotification"></a>
+
 ### RemoveAllBucketNotificationsAsync(RemoveAllBucketNotificationsArgs args)
+
 `Task RemoveAllBucketNotificationsAsync(RemoveAllBucketNotificationsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Remove all notification configurations set on the bucket
-
 
 __Parameters__
 
 | Param                 | Type                                 | Description                                                          |
 |:----------------------|:-------------------------------------|:---------------------------------------------------------------------|
-| ``args``              | _RemoveAllBucketNotificationsArgs_   | RemoveAllBucketNotificationsArgs args encapsulating the bucket name. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)           |
+| ``args``              | _
+RemoveAllBucketNotificationsArgs_   | RemoveAllBucketNotificationsArgs args encapsulating the bucket name. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)           |
 |                       |                                      |                                                                      |
-
 
 | Return Type | Exceptions                                                                 |
 |:------------|:---------------------------------------------------------------------------|
@@ -1699,9 +1622,7 @@ __Parameters__
 |             | ``BucketNotFoundException`` : upon missing bucket                          |
 |             | ``InvalidOperationException``: upon unsuccessful serialization of xml data |
 
-
 __Example__
-
 
 ```cs
 try
@@ -1720,21 +1641,21 @@ catch (MinioException e)
 ## 3. Object operations
 
 <a name="getObject"></a>
+
 ### GetObjectAsync(GetObjectArgs args, ServerSideEncryption sse)
 
 `Task GetObjectAsync(GetObjectArgs args, ServerSideEncryption sse = null, CancellationToken cancellationToken = default(CancellationToken))`
 
 Downloads an object.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                                                               |
 |:----------------------|:-------------------------------------|:--------------------------------------------------------------------------------------------------------------------------|
-| ``args``              | _GetObjectArgs_                      | GetObjectArgs Argument Object encapsulating bucket, object names, version Id, ServerSideEncryption object, offset, length |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                                                |
-
+| ``args``              | _
+GetObjectArgs_                      | GetObjectArgs Argument Object encapsulating bucket, object names, version Id, ServerSideEncryption object, offset, length |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                                                |
 
 | Return Type                                                                | Exceptions                                                 |
 |:---------------------------------------------------------------------------|:-----------------------------------------------------------|
@@ -1743,9 +1664,7 @@ __Parameters__
 |                                                                            | ``ConnectionException`` : upon connection error.           |
 |                                                                            | ``InternalClientException`` : upon internal library error. |
 
-
 __Examples__
-
 
 ```cs
 // 1. With Bucket & Object names.
@@ -1830,21 +1749,21 @@ catch (MinioException e)
 ```
 
 <a name="putObject"></a>
+
 ### PutObjectAsync(PutObjectArgs args)
 
 ` Task PutObjectAsync(PutObjectArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
-
 PutObjectAsync: Uploads object from a file or stream.
-
 
 __Parameters__
 
 | Param                 | Type                                 | Description                                                                                                                       |
 |:----------------------|:-------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------|
-| ``args``              | _PutObjectArgs_                      | Arguments object - bucket name, object name, file name, object data stream, object size, content type, object metadata, SSE. etc. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                                                        |
-
+| ``args``              | _
+PutObjectArgs_                      | Arguments object - bucket name, object name, file name, object data stream, object size, content type, object metadata, SSE. etc. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                                                        |
 
 | Return Type | Exceptions                                                                        |
 |:------------|:----------------------------------------------------------------------------------|
@@ -1861,9 +1780,8 @@ __Parameters__
 
 __Example__
 
-
-The maximum size of a single object is limited to 5TB. putObject transparently uploads objects larger than 5MiB in multiple parts. Uploaded data is carefully verified using MD5SUM signatures.
-
+The maximum size of a single object is limited to 5TB. putObject transparently uploads objects larger than 5MiB in
+multiple parts. Uploaded data is carefully verified using MD5SUM signatures.
 
 ```cs
 try
@@ -1887,23 +1805,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="statObject"></a>
+
 ### StatObjectAsync(StatObjectArgs args)
 
 `Task<ObjectStat> StatObjectAsync(StatObjectArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Gets metadata of an object.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                              |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------------------------------------|
-| ``args``              | _StatObjectArgs_                     | StatObjectArgs Argument Object with bucket, object names & server side encryption object |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                               |
-
+| ``args``              | _
+StatObjectArgs_                     | StatObjectArgs Argument Object with bucket, object names & server side encryption object |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                               |
 
 | Return Type                                       | Exceptions                                                |
 |:--------------------------------------------------|:----------------------------------------------------------|
@@ -1912,10 +1829,7 @@ __Parameters__
 |                                                   | ``ConnectionException`` : upon connection error           |
 |                                                   | ``InternalClientException`` : upon internal library error |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -1934,21 +1848,21 @@ catch(MinioException e)
 ```
 
 <a name="copyObject"></a>
+
 ### CopyObjectAsync(CopyObjectArgs args)
 
 *`Task<CopyObjectResult> CopyObjectAsync(CopyObjectArgs args, CancellationToken cancellationToken = default(CancellationToken))`*
 
 Copies content from objectName to destObjectName.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                                                                                                 |
 |:----------------------|:-------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ``args``              | _CopyObjectArgs_                     | Arguments object - bucket name, object name, destination bucket name, destination object name, copy conditions, metadata, Source SSE, Destination SSE. etc. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                                                                                  |
-
+| ``args``              | _
+CopyObjectArgs_                     | Arguments object - bucket name, object name, destination bucket name, destination object name, copy conditions, metadata, Source SSE, Destination SSE. etc. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                                                                                  |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -1964,7 +1878,6 @@ __Parameters__
 |             | ``ArgumentException`` : upon missing bucket/object names                              |
 
 __Example__
-
 
 This API performs a Server-side copy operation from a given source object to destination object.
 
@@ -1991,8 +1904,8 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="removeObject"></a>
+
 ### RemoveObjectAsync(RemoveObjectArgs args)
 
 `Task RemoveObjectAsync(RemoveObjectArgs args, CancellationToken cancellationToken = default(CancellationToken))`
@@ -2001,11 +1914,12 @@ Removes an object.
 
 __Parameters__
 
-
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _RemoveObjectArgs_                   | Arguments Object.                                          |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
+| ``args``              | _
+RemoveObjectArgs_                   | Arguments Object.                                          |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions                                                |
 |:------------|:----------------------------------------------------------|
@@ -2014,10 +1928,7 @@ __Parameters__
 |             | ``ConnectionException`` : upon connection error           |
 |             | ``InternalClientException`` : upon internal library error |
 
-
-
 __Example__
-
 
 ```cs
 // 1. Remove object myobject from the bucket mybucket.
@@ -2050,21 +1961,23 @@ catch (MinioException e)
 }
 
 ```
+
 <a name="removeObjects"></a>
+
 ### RemoveObjectsAsync(RemoveObjectsArgs args)
 
 `Task<IObservable<DeleteError>> RemoveObjectsAsync(RemoveObjectsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Removes a list of objects or object versions.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                                                                   |
 |:----------------------|:-------------------------------------|:------------------------------------------------------------------------------------------------------------------------------|
-| ``args``              | _RemoveObjectsArgs_                  | Arguments Object - bucket name, List of Objects to be deleted or List of Tuples with Tuple(object name, List of version IDs). |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                                                    |
+| ``args``              | _
+RemoveObjectsArgs_                  | Arguments Object - bucket name, List of Objects to be deleted or List of Tuples with Tuple(object name, List of version IDs). |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                                                                    |
 
 | Return Type | Exceptions                                                |
 |:------------|:----------------------------------------------------------|
@@ -2073,10 +1986,7 @@ __Parameters__
 |             | ``ConnectionException`` : upon connection error           |
 |             | ``InternalClientException`` : upon internal library error |
 
-
-
 __Example__
-
 
 ```cs
 // 1. Remove list of objects in objectNames from the bucket bucketName.
@@ -2137,8 +2047,8 @@ catch (MinioException e)
 
 ```
 
-
 <a name="removeIncompleteUpload"></a>
+
 ### RemoveIncompleteUploadAsync(RemoveIncompleteUploadArgs args)
 
 `Task RemoveIncompleteUploadAsync(RemoveIncompleteUploadArgs args, CancellationToken cancellationToken = default(CancellationToken))`
@@ -2147,12 +2057,12 @@ Removes a partially uploaded object.
 
 __Parameters__
 
-
 | Param                 | Type                                 | Description                                                              |
 |:----------------------|:-------------------------------------|:-------------------------------------------------------------------------|
-| ``args``              | _RemoveIncompleteUploadArgs_         | RemoveIncompleteUploadArgs object encapsulating the bucket, object names |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)               |
-
+| ``args``              | _
+RemoveIncompleteUploadArgs_         | RemoveIncompleteUploadArgs object encapsulating the bucket, object names |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)               |
 
 | Return Type | Exceptions                                                |
 |:------------|:----------------------------------------------------------|
@@ -2161,9 +2071,7 @@ __Parameters__
 |             | ``ConnectionException`` : upon connection error           |
 |             | ``InternalClientException`` : upon internal library error |
 
-
 __Example__
-
 
 ```cs
 try
@@ -2182,21 +2090,21 @@ catch(MinioException e)
 ```
 
 <a name="selectObjectContent"></a>
+
 ### SelectObjectContentAsync(SelectObjectContentArgs args)
 
 `Task<SelectResponseStream> SelectObjectContentAsync(SelectObjectContentArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Downloads an object as a stream.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |                     |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|---------------------|
-| ``args``              | _SelectObjectContentArgs_            | options for SelectObjectContent async                      | Required parameter. |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |                     |
-
+| ``args``              | _
+SelectObjectContentArgs_            | options for SelectObjectContent async                      | Required parameter. |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |                     |
 
 | Return Type                                                                       | Exceptions                                                 |
 |:----------------------------------------------------------------------------------|:-----------------------------------------------------------|
@@ -2207,9 +2115,7 @@ __Parameters__
 |                                                                                   | ``ArgumentException`` : upon invalid response format       |
 |                                                                                   | ``IOException`` : insufficient data                        |
 
-
 __Example__
-
 
 ```cs
 try
@@ -2258,23 +2164,22 @@ catch (MinioException e)
 }
 ```
 
-
 <a name="setLegalHold"></a>
+
 ### SetObjectLegalHoldAsync(SetObjectLegalHoldArgs args)
 
 `Task SetObjectLegalHoldAsync(SetObjectLegalHoldArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Sets the Legal Hold status of an object.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                            |
 |:----------------------|:-------------------------------------|:---------------------------------------------------------------------------------------|
-| ``args``              | _SetObjectLegalHoldArgs_             | SetObjectLegalHoldArgs Argument Object with bucket, object names, version id(optional) |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
-
+| ``args``              | _
+SetObjectLegalHoldArgs_             | SetObjectLegalHoldArgs Argument Object with bucket, object names, version id(optional) |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
 
 | Return Type | Exceptions                                                                                     |
 |:------------|:-----------------------------------------------------------------------------------------------|
@@ -2287,10 +2192,7 @@ __Parameters__
 |             | ``MissingObjectLockConfigurationException`` : upon bucket created with object lock not enabled |
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure          |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -2310,21 +2212,21 @@ catch(MinioException e)
 ```
 
 <a name="getLegalHold"></a>
+
 ### GetObjectLegalHoldAsync(GetObjectLegalHoldArgs args)
 
 `Task<bool> GetObjectLegalHoldAsync(GetObjectLegalHoldArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Gets the Legal Hold status of an object.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                            |
 |:----------------------|:-------------------------------------|:---------------------------------------------------------------------------------------|
-| ``args``              | _GetObjectLegalHoldArgs_             | GetObjectLegalHoldArgs Argument Object with bucket, object names, version id(optional) |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
-
+| ``args``              | _
+GetObjectLegalHoldArgs_             | GetObjectLegalHoldArgs Argument Object with bucket, object names, version id(optional) |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
 
 | Return Type                                                    | Exceptions                                                                                     |
 |:---------------------------------------------------------------|:-----------------------------------------------------------------------------------------------|
@@ -2337,9 +2239,7 @@ __Parameters__
 |                                                                | ``MissingObjectLockConfigurationException`` : upon bucket created with object lock not enabled |
 |                                                                | ``MalFormedXMLException`` : upon configuration XML in http request validation failure          |
 
-
 __Example__
-
 
 ```cs
 try
@@ -2359,22 +2259,23 @@ catch(MinioException e)
    Console.WriteLine("Error occurred: " + e);
 }
 ```
+
 <a name="setObjectTags"></a>
+
 ### SetObjectTagsAsync(SetObjectTagsArgs args)
 
 `Task SetObjectTagsAsync(SetObjectTagsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Sets tags to a object.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _SetObjectTagsArgs_                  | SetObjectTagsArgs Argument Object with object, tags to set |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+SetObjectTagsArgs_                  | SetObjectTagsArgs Argument Object with object, tags to set |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -2387,10 +2288,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -2410,22 +2308,21 @@ catch(MinioException e)
 ```
 
 <a name="getObjectTags"></a>
+
 ### GetObjectTagsAsync(GetObjectTagsArgs args)
 
 `Task<Tagging> GetObjectTagsAsync(GetObjectTagsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Gets tags of a object.
 
-
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _GetObjectTagsArgs_                  | GetObjectTagsArgs Argument Object with object name         |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+GetObjectTagsArgs_                  | GetObjectTagsArgs Argument Object with object name         |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type                                                               | Exceptions                                                                            |
 |:--------------------------------------------------------------------------|:--------------------------------------------------------------------------------------|
@@ -2438,10 +2335,7 @@ __Parameters__
 |                                                                           | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |                                                                           | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -2459,23 +2353,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="removeObjectTags"></a>
+
 ### RemoveObjectTagsAsync(RemoveObjectTagsArgs args)
 
 `Task RemoveObjectTagsAsync(RemoveObjectTagsArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Deletes tags of a object.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------|
-| ``args``              | _RemoveObjectTagsArgs_               | RemoveObjectTagsArgs Argument Object with object name      |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
-
+| ``args``              | _
+RemoveObjectTagsArgs_               | RemoveObjectTagsArgs Argument Object with object name      |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken) |
 
 | Return Type | Exceptions                                                                            |
 |:------------|:--------------------------------------------------------------------------------------|
@@ -2488,10 +2381,7 @@ __Parameters__
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure |
 |             | ``UnexpectedMinioException`` : upon internal errors encountered during the operation  |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -2509,23 +2399,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="setObjectRetention"></a>
+
 ### SetObjectRetentionAsync(SetObjectRetentionArgs args)
 
 `Task SetObjectRetentionAsync(SetObjectRetentionArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Sets retention configuration to an object.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                            |
 |:----------------------|:-------------------------------------|:---------------------------------------------------------------------------------------|
-| ``args``              | _SetObjectRetentionArgs_             | SetObjectRetentionArgs Argument Object with bucket, object names, version id(optional) |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
-
+| ``args``              | _
+SetObjectRetentionArgs_             | SetObjectRetentionArgs Argument Object with bucket, object names, version id(optional) |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
 
 | Return Type | Exceptions                                                                                     |
 |:------------|:-----------------------------------------------------------------------------------------------|
@@ -2538,10 +2427,7 @@ __Parameters__
 |             | ``MissingObjectLockConfigurationException`` : upon bucket created with object lock not enabled |
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure          |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -2560,24 +2446,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="getObjectRetention"></a>
+
 ### GetObjectRetentionAsync(GetObjectRetentionArgs args)
 
 `Task<ObjectRetentionConfiguration> GetObjectRetentionAsync(GetObjectRetentionArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Gets retention configuration of an object.
 
-
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                            |
 |:----------------------|:-------------------------------------|:---------------------------------------------------------------------------------------|
-| ``args``              | _GetObjectRetentionArgs_             | GetObjectRetentionArgs Argument Object with bucket, object names, version id(optional) |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
-
+| ``args``              | _
+GetObjectRetentionArgs_             | GetObjectRetentionArgs Argument Object with bucket, object names, version id(optional) |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                             |
 
 | Return Type                                                                                          | Exceptions                                                                                     |
 |:-----------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------|
@@ -2590,9 +2474,7 @@ __Parameters__
 |                                                                                                      | ``MissingObjectLockConfigurationException`` : upon bucket created with object lock not enabled |
 |                                                                                                      | ``MalFormedXMLException`` : upon configuration XML in http request validation failure          |
 
-
 __Example__
-
 
 ```cs
 try
@@ -2610,23 +2492,22 @@ catch(MinioException e)
 }
 ```
 
-
 <a name="clearObjectRetention"></a>
+
 ### ClearObjectRetentionAsync(ClearObjectRetentionArgs args)
 
 `Task ClearObjectRetentionAsync(ClearObjectRetentionArgs args, CancellationToken cancellationToken = default(CancellationToken))`
 
 Clears retention configuration to an object.
 
-
 __Parameters__
-
 
 | Param                 | Type                                 | Description                                                                              |
 |:----------------------|:-------------------------------------|:-----------------------------------------------------------------------------------------|
-| ``args``              | _ClearObjectRetentionArgs_           | ClearObjectRetentionArgs Argument Object with bucket, object names, version id(optional) |
-| ``cancellationToken`` | _System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                               |
-
+| ``args``              | _
+ClearObjectRetentionArgs_           | ClearObjectRetentionArgs Argument Object with bucket, object names, version id(optional) |
+| ``cancellationToken`` | _
+System.Threading.CancellationToken_ | Optional parameter. Defaults to default(CancellationToken)                               |
 
 | Return Type | Exceptions                                                                                     |
 |:------------|:-----------------------------------------------------------------------------------------------|
@@ -2639,10 +2520,7 @@ __Parameters__
 |             | ``MissingObjectLockConfigurationException`` : upon bucket created with object lock not enabled |
 |             | ``MalFormedXMLException`` : upon configuration XML in http request validation failure          |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -2660,22 +2538,24 @@ catch(MinioException e)
 }
 ```
 
-
-
 ## 4. Presigned operations
+
 <a name="presignedGetObject"></a>
 
 ### PresignedGetObjectAsync(PresignedGetObjectArgs args);
+
 `Task<string> PresignedGetObjectAsync(PresignedGetObjectArgs args)`
 
-Generates a presigned URL for HTTP GET operations. Browsers/Mobile clients may point to this URL to directly download objects even if the bucket is private. This presigned URL can have an associated expiration time in seconds after which it is no longer operational. The default expiry is set to 7 days.
+Generates a presigned URL for HTTP GET operations. Browsers/Mobile clients may point to this URL to directly download
+objects even if the bucket is private. This presigned URL can have an associated expiration time in seconds after which
+it is no longer operational. The default expiry is set to 7 days.
 
 __Parameters__
 
-
 | Param    | Type                     | Description                                                                                        |
 |:---------|:-------------------------|:---------------------------------------------------------------------------------------------------|
-| ``args`` | _PresignedGetObjectArgs_ | PresignedGetObjectArgs encapsulating bucket, object names, expiry, response headers & request date |
+| ``args`` | _
+PresignedGetObjectArgs_ | PresignedGetObjectArgs encapsulating bucket, object names, expiry, response headers & request date |
 
 | Return Type                                                   | Exceptions                                                   |
 |:--------------------------------------------------------------|:-------------------------------------------------------------|
@@ -2684,9 +2564,7 @@ __Parameters__
 |                                                               | ``ConnectionException`` : upon connection error              |
 |                                                               | ``InvalidExpiryRangeException`` : upon invalid expiry range. |
 
-
 __Example__
-
 
 ```cs
 try
@@ -2705,14 +2583,16 @@ catch(MinioException e)
 ```
 
 <a name="presignedPutObject"></a>
+
 ### PresignedPutObjectAsync(PresignedPutObjectArgs args)
 
 `Task<string> PresignedPutObjectAsync(PresignedPutObjectArgs args)`
 
-Generates a presigned URL for HTTP PUT operations. Browsers/Mobile clients may point to this URL to upload objects directly to a bucket even if it is private. This presigned URL can have an associated expiration time in seconds after which it is no longer operational. The default expiry is set to 7 days.
+Generates a presigned URL for HTTP PUT operations. Browsers/Mobile clients may point to this URL to upload objects
+directly to a bucket even if it is private. This presigned URL can have an associated expiration time in seconds after
+which it is no longer operational. The default expiry is set to 7 days.
 
 __Parameters__
-
 
 | Param    | Type                     | Description                                                                |
 |:---------|:-------------------------|:---------------------------------------------------------------------------|
@@ -2725,7 +2605,6 @@ __Parameters__
 |                                                             | ``InvalidKeyException`` : upon an invalid access key or secret key |
 |                                                             | ``ConnectionException`` : upon connection error                    |
 |                                                             | ``InvalidExpiryRangeException`` : upon invalid expiry range.       |
-
 
 __Example__
 
@@ -2746,19 +2625,20 @@ catch(MinioException e)
 ```
 
 <a name="presignedPostPolicy"></a>
+
 ### PresignedPostPolicy(PresignedPostPolicyArgs args)
 
 `Task<Dictionary<string, string>> PresignedPostPolicyAsync(PresignedPostPolicyArgs args)`
 
-Allows setting policy conditions to a presigned URL for POST operations. Policies such as bucket name to receive object uploads, key name prefixes, expiry policy may be set.
+Allows setting policy conditions to a presigned URL for POST operations. Policies such as bucket name to receive object
+uploads, key name prefixes, expiry policy may be set.
 
 __Parameters__
 
-
 | Param    | Type                      | Description                                                                                        |
 |:---------|:--------------------------|:---------------------------------------------------------------------------------------------------|
-| ``args`` | _PresignedPostPolicyArgs_ | PresignedPostPolicyArgs Arguments object includes bucket, object names & Post policy of an object. |
-
+| ``args`` | _
+PresignedPostPolicyArgs_ | PresignedPostPolicyArgs Arguments object includes bucket, object names & Post policy of an object. |
 
 | Return Type                                                                  | Exceptions                                                                                          |
 |:-----------------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------|
@@ -2767,10 +2647,7 @@ __Parameters__
 |                                                                              | ``ConnectionException`` : upon connection error                                                     |
 |                                                                              | ``NoSuchAlgorithmException`` : upon requested algorithm was not found during signature calculation. |
 
-
-
 __Example__
-
 
 ```cs
 try
@@ -2801,9 +2678,13 @@ catch(MinioException e)
   Console.WriteLine("Error occurred: " + e);
 }
 ```
+
 ## Client Custom Settings
+
 <a name="SetAppInfo"></a>
+
 ### SetAppInfo(string appName, string appVersion)
+
 Adds application details to User-Agent.
 
 __Parameters__
@@ -2813,23 +2694,25 @@ __Parameters__
 | `appName`    | _string_ | Name of the application performing the API requests    |
 | `appVersion` | _string_ | Version of the application performing the API requests |
 
-
 __Example__
-
 
 ```cs
 // Set Application name and version to be used in subsequent API requests.
 minioClient.SetAppInfo("myCloudApp", "1.0.0")
 ```
+
 <a name="SetTraceOn"></a>
+
 ### SetTraceOn(IRequestLogger logger = null)
+
 Enables HTTP tracing. The trace is written to the stdout.
 
 __Parameters__
 
 | Param    | Type             | Description                                                                                |
 |----------|------------------|--------------------------------------------------------------------------------------------|
-| `logger` | _IRequestLogger_ | Implementation of interface `Minio.IRequestLogger` for serialization models for trace HTTP |
+| `logger` | _
+IRequestLogger_ | Implementation of interface `Minio.IRequestLogger` for serialization models for trace HTTP |
 
 __Example__
 
@@ -2841,12 +2724,14 @@ minioClient.SetTraceOn()
 minioClient.SetTraceOn(new JsonNetLogger())
 ```
 
-
 <a name="SetTraceOff"></a>
+
 ### SetTraceOff()
+
 Disables HTTP tracing.
 
 __Example__
+
 ```cs
 // Sets HTTP tracing off.
 minioClient.SetTraceOff()

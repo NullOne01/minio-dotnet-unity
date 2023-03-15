@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
 /*
@@ -24,25 +25,26 @@ using System.Xml.Serialization;
  * https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucketReplication.html
  */
 
-namespace Minio.DataModel.Replication;
-
-[Serializable]
-[XmlRoot(ElementName = "ReplicationTime")]
-public class ReplicationTime
+namespace Minio.DataModel.Replication
 {
-    public ReplicationTime()
+    [Serializable]
+    [XmlRoot(ElementName = "ReplicationTime")]
+    public class ReplicationTime
     {
+        public ReplicationTime()
+        {
+        }
+
+        public ReplicationTime(ReplicationTimeValue time, string status)
+        {
+            if (string.IsNullOrEmpty(status) || string.IsNullOrWhiteSpace(status))
+                throw new ArgumentNullException(nameof(Status) + " cannot be null or empty.");
+            Time = time ?? throw new ArgumentNullException(nameof(Time), " object cannot be null.");
+            Status = status;
+        }
+
+        [XmlElement("Time")] public ReplicationTimeValue Time { get; set; }
+
+        [XmlElement("Status")] public string Status { get; set; }
     }
-
-    public ReplicationTime(ReplicationTimeValue time, string status)
-    {
-        if (string.IsNullOrEmpty(status) || string.IsNullOrWhiteSpace(status))
-            throw new ArgumentNullException(nameof(Status) + " cannot be null or empty.");
-        Time = time ?? throw new ArgumentNullException(nameof(Time), " object cannot be null.");
-        Status = status;
-    }
-
-    [XmlElement("Time")] public ReplicationTimeValue Time { get; set; }
-
-    [XmlElement("Status")] public string Status { get; set; }
 }

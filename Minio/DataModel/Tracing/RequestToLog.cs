@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-namespace Minio.DataModel.Tracing;
+using System;
+using System.Collections.Generic;
 
-public sealed class RequestToLog
+namespace Minio.DataModel.Tracing
 {
-    public string resource { get; internal set; }
-    public IEnumerable<RequestParameter> parameters { get; internal set; }
-    public string method { get; internal set; }
-    public Uri uri { get; internal set; }
+    public sealed class RequestToLog
+    {
+        public string resource { get; internal set; }
+        public IEnumerable<RequestParameter> parameters { get; internal set; }
+        public string method { get; internal set; }
+        public Uri uri { get; internal set; }
+    }
 }

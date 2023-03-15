@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-public static class MakeBucket
+namespace Minio.Examples.Cases
 {
-    // Make a bucket
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name", string loc = "us-east-1")
+    public static class MakeBucket
     {
-        try
+        // Make a bucket
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name", string loc = "us-east-1")
         {
-            Console.WriteLine("Running example for API: MakeBucketAsync");
-            await minio.MakeBucketAsync(
-                new MakeBucketArgs()
-                    .WithBucket(bucketName)
-                    .WithLocation(loc)
-            ).ConfigureAwait(false);
-            Console.WriteLine($"Created bucket {bucketName}");
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Bucket]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: MakeBucketAsync");
+                await minio.MakeBucketAsync(
+                    new MakeBucketArgs()
+                        .WithBucket(bucketName)
+                        .WithLocation(loc)
+                ).ConfigureAwait(false);
+                Console.WriteLine($"Created bucket {bucketName}");
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Bucket]  Exception: {e}");
+            }
         }
     }
 }

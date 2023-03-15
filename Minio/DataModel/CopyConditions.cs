@@ -14,130 +14,133 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Minio.DataModel;
-
-/// <summary>
-///     A container class to hold all the Conditions to be checked before copying an object.
-/// </summary>
-public class CopyConditions
+namespace Minio.DataModel
 {
-    private readonly Dictionary<string, string> copyConditions = new();
-    internal long byteRangeEnd = -1;
-    internal long byteRangeStart;
-
     /// <summary>
-    ///     Clone CopyConditions object
+    ///     A container class to hold all the Conditions to be checked before copying an object.
     /// </summary>
-    /// <returns>new CopyConditions object</returns>
-    public CopyConditions Clone()
+    public class CopyConditions
     {
-        var newcond = new CopyConditions();
-        foreach (var item in copyConditions) newcond.copyConditions.Add(item.Key, item.Value);
-        newcond.byteRangeStart = byteRangeStart;
-        newcond.byteRangeEnd = byteRangeEnd;
-        return newcond;
-    }
+        private readonly Dictionary<string, string> copyConditions = new();
+        internal long byteRangeEnd = -1;
+        internal long byteRangeStart;
 
-    /// <summary>
-    ///     Set modified condition, copy object modified since given time.
-    /// </summary>
-    /// <param name="date"></param>
-    /// <exception cref="ArgumentException">When date is null</exception>
-    public void SetModified(DateTime date)
-    {
-        copyConditions.Add("x-amz-copy-source-if-modified-since", date.ToUniversalTime().ToString("r"));
-    }
+        /// <summary>
+        ///     Clone CopyConditions object
+        /// </summary>
+        /// <returns>new CopyConditions object</returns>
+        public CopyConditions Clone()
+        {
+            var newcond = new CopyConditions();
+            foreach (var item in copyConditions) newcond.copyConditions.Add(item.Key, item.Value);
+            newcond.byteRangeStart = byteRangeStart;
+            newcond.byteRangeEnd = byteRangeEnd;
+            return newcond;
+        }
 
-    /// <summary>
-    ///     Unset modified condition, copy object modified since given time.
-    /// </summary>
-    /// <param name="date"></param>
-    /// <exception cref="ArgumentException">When date is null</exception>
-    public void SetUnmodified(DateTime date)
-    {
-        copyConditions.Add("x-amz-copy-source-if-unmodified-since", date.ToUniversalTime().ToString("r"));
-    }
+        /// <summary>
+        ///     Set modified condition, copy object modified since given time.
+        /// </summary>
+        /// <param name="date"></param>
+        /// <exception cref="ArgumentException">When date is null</exception>
+        public void SetModified(DateTime date)
+        {
+            copyConditions.Add("x-amz-copy-source-if-modified-since", date.ToUniversalTime().ToString("r"));
+        }
 
-    /// <summary>
-    ///     Set matching ETag condition, copy object which matches
-    ///     the following ETag.
-    /// </summary>
-    /// <param name="etag"></param>
-    /// <exception cref="ArgumentException">When etag is null</exception>
-    public void SetMatchETag(string etag)
-    {
-        if (etag == null) throw new ArgumentException("ETag cannot be empty", nameof(etag));
-        copyConditions.Add("x-amz-copy-source-if-match", etag);
-    }
+        /// <summary>
+        ///     Unset modified condition, copy object modified since given time.
+        /// </summary>
+        /// <param name="date"></param>
+        /// <exception cref="ArgumentException">When date is null</exception>
+        public void SetUnmodified(DateTime date)
+        {
+            copyConditions.Add("x-amz-copy-source-if-unmodified-since", date.ToUniversalTime().ToString("r"));
+        }
 
-    /// <summary>
-    ///     Set matching ETag none condition, copy object which does not
-    ///     match the following ETag.
-    /// </summary>
-    /// <param name="etag"></param>
-    /// <exception cref="ArgumentException">When etag is null</exception>
-    public void SetMatchETagNone(string etag)
-    {
-        if (etag == null) throw new ArgumentException("ETag cannot be empty", nameof(etag));
-        copyConditions.Add("x-amz-copy-source-if-none-match", etag);
-    }
+        /// <summary>
+        ///     Set matching ETag condition, copy object which matches
+        ///     the following ETag.
+        /// </summary>
+        /// <param name="etag"></param>
+        /// <exception cref="ArgumentException">When etag is null</exception>
+        public void SetMatchETag(string etag)
+        {
+            if (etag == null) throw new ArgumentException("ETag cannot be empty", nameof(etag));
+            copyConditions.Add("x-amz-copy-source-if-match", etag);
+        }
 
-    /// <summary>
-    ///     Set replace metadata directive which specifies that server side copy needs to replace metadata
-    ///     on destination with custom metadata provided in the request.
-    /// </summary>
-    public void SetReplaceMetadataDirective()
-    {
-        copyConditions.Add("x-amz-metadata-directive", "REPLACE");
-    }
+        /// <summary>
+        ///     Set matching ETag none condition, copy object which does not
+        ///     match the following ETag.
+        /// </summary>
+        /// <param name="etag"></param>
+        /// <exception cref="ArgumentException">When etag is null</exception>
+        public void SetMatchETagNone(string etag)
+        {
+            if (etag == null) throw new ArgumentException("ETag cannot be empty", nameof(etag));
+            copyConditions.Add("x-amz-copy-source-if-none-match", etag);
+        }
 
-    /// <summary>
-    ///     Return true if replace metadata directive is specified
-    /// </summary>
-    /// <returns></returns>
-    public bool HasReplaceMetadataDirective()
-    {
-        foreach (var item in copyConditions)
-            if (item.Key.Equals("x-amz-metadata-directive", StringComparison.OrdinalIgnoreCase) &&
-                item.Value.ToUpperInvariant().Equals("REPLACE"))
-                return true;
+        /// <summary>
+        ///     Set replace metadata directive which specifies that server side copy needs to replace metadata
+        ///     on destination with custom metadata provided in the request.
+        /// </summary>
+        public void SetReplaceMetadataDirective()
+        {
+            copyConditions.Add("x-amz-metadata-directive", "REPLACE");
+        }
 
-        return false;
-    }
+        /// <summary>
+        ///     Return true if replace metadata directive is specified
+        /// </summary>
+        /// <returns></returns>
+        public bool HasReplaceMetadataDirective()
+        {
+            foreach (var item in copyConditions)
+                if (item.Key.Equals("x-amz-metadata-directive", StringComparison.OrdinalIgnoreCase) &&
+                    item.Value.ToUpperInvariant().Equals("REPLACE"))
+                    return true;
 
-    /// <summary>
-    ///     Set Byte Range condition, copy object which falls within the
-    ///     start and end byte range specified by user
-    /// </summary>
-    /// <param name="firstByte"></param>
-    /// <param name="lastByte"></param>
-    /// <exception cref="ArgumentException">When firstByte is null or lastByte is null</exception>
-    public void SetByteRange(long firstByte, long lastByte)
-    {
-        if (firstByte < 0 || lastByte < firstByte)
-            throw new ArgumentException("Range start less than zero or range end less than range start");
+            return false;
+        }
 
-        byteRangeStart = firstByte;
-        byteRangeEnd = lastByte;
-    }
+        /// <summary>
+        ///     Set Byte Range condition, copy object which falls within the
+        ///     start and end byte range specified by user
+        /// </summary>
+        /// <param name="firstByte"></param>
+        /// <param name="lastByte"></param>
+        /// <exception cref="ArgumentException">When firstByte is null or lastByte is null</exception>
+        public void SetByteRange(long firstByte, long lastByte)
+        {
+            if (firstByte < 0 || lastByte < firstByte)
+                throw new ArgumentException("Range start less than zero or range end less than range start");
 
-    /// <summary>
-    ///     Get range size
-    /// </summary>
-    /// <returns></returns>
-    public long GetByteRange()
-    {
-        return byteRangeStart == -1 ? 0 : byteRangeEnd - byteRangeStart + 1;
-    }
+            byteRangeStart = firstByte;
+            byteRangeEnd = lastByte;
+        }
 
-    /// <summary>
-    ///     Get all the set copy conditions map.
-    /// </summary>
-    /// <returns></returns>
-    public ReadOnlyDictionary<string, string> GetConditions()
-    {
-        return new ReadOnlyDictionary<string, string>(copyConditions);
+        /// <summary>
+        ///     Get range size
+        /// </summary>
+        /// <returns></returns>
+        public long GetByteRange()
+        {
+            return byteRangeStart == -1 ? 0 : byteRangeEnd - byteRangeStart + 1;
+        }
+
+        /// <summary>
+        ///     Get all the set copy conditions map.
+        /// </summary>
+        /// <returns></returns>
+        public ReadOnlyDictionary<string, string> GetConditions()
+        {
+            return new ReadOnlyDictionary<string, string>(copyConditions);
+        }
     }
 }

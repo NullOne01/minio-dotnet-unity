@@ -15,110 +15,116 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 
-namespace Minio;
-
-public class ResponseResult : IDisposable
+namespace Minio
 {
-    private readonly Dictionary<string, string> _headers = new();
-    private string _content;
-    private byte[] _contentBytes;
-
-    private Stream _stream;
-
-    public ResponseResult(HttpRequestMessage request, HttpResponseMessage response)
+    public class ResponseResult : IDisposable
     {
-        Request = request;
-        Response = response;
-    }
+        private readonly Dictionary<string, string> _headers = new();
+        private string _content;
+        private byte[] _contentBytes;
 
-    public ResponseResult(HttpRequestMessage request, Exception exception)
-        : this(request, response: null)
-    {
-        Exception = exception;
-    }
+        private Stream _stream;
 
-    private Exception Exception { get; }
-    public HttpRequestMessage Request { get; }
-    public HttpResponseMessage Response { get; }
-
-    public HttpStatusCode StatusCode
-    {
-        get
+        public ResponseResult(HttpRequestMessage request, HttpResponseMessage response)
         {
-            if (Response == null) return 0;
-
-            return Response.StatusCode;
+            Request = request;
+            Response = response;
         }
-    }
 
-    public Stream ContentStream
-    {
-        get
+        public ResponseResult(HttpRequestMessage request, Exception exception)
+            : this(request, response: null)
         {
-            if (Response == null) return null;
-
-            return _stream ??= Response.Content.ReadAsStreamAsync().Result;
+            Exception = exception;
         }
-    }
 
-    public byte[] ContentBytes
-    {
-        get
+        private Exception Exception { get; }
+        public HttpRequestMessage Request { get; }
+        public HttpResponseMessage Response { get; }
+
+        public HttpStatusCode StatusCode
         {
-            if (ContentStream == null)
-                return Array.Empty<byte>();
-
-            if (_contentBytes == null)
+            get
             {
-                using var memoryStream = new MemoryStream();
-                ContentStream.CopyTo(memoryStream);
-                _contentBytes = memoryStream.ToArray();
+                if (Response == null) return 0;
+
+                return Response.StatusCode;
             }
-
-            return _contentBytes;
         }
-    }
 
-    public string Content
-    {
-        get
+        public Stream ContentStream
         {
-            if (ContentBytes.Length == 0) return "";
-
-            _content ??= Encoding.UTF8.GetString(ContentBytes);
-
-            return _content;
-        }
-    }
-
-    public Dictionary<string, string> Headers
-    {
-        get
-        {
-            if (Response == null) return new Dictionary<string, string>();
-
-            if (!_headers.Any())
+            get
             {
-                if (Response.Content != null)
-                    foreach (var item in Response.Content.Headers)
-                        _headers.Add(item.Key, item.Value.FirstOrDefault());
+                if (Response == null) return null;
 
-                foreach (var item in Response.Headers) _headers.Add(item.Key, item.Value.FirstOrDefault());
+                return _stream ??= Response.Content.ReadAsStreamAsync().Result;
             }
-
-            return _headers;
         }
-    }
 
-    public string ErrorMessage => Exception?.Message;
+        public byte[] ContentBytes
+        {
+            get
+            {
+                if (ContentStream == null)
+                    return Array.Empty<byte>();
 
-    public void Dispose()
-    {
-        _stream?.Dispose();
-        Request?.Dispose();
-        Response?.Dispose();
+                if (_contentBytes == null)
+                {
+                    using var memoryStream = new MemoryStream();
+                    ContentStream.CopyTo(memoryStream);
+                    _contentBytes = memoryStream.ToArray();
+                }
+
+                return _contentBytes;
+            }
+        }
+
+        public string Content
+        {
+            get
+            {
+                if (ContentBytes.Length == 0) return "";
+
+                _content ??= Encoding.UTF8.GetString(ContentBytes);
+
+                return _content;
+            }
+        }
+
+        public Dictionary<string, string> Headers
+        {
+            get
+            {
+                if (Response == null) return new Dictionary<string, string>();
+
+                if (!_headers.Any())
+                {
+                    if (Response.Content != null)
+                        foreach (var item in Response.Content.Headers)
+                            _headers.Add(item.Key, item.Value.FirstOrDefault());
+
+                    foreach (var item in Response.Headers) _headers.Add(item.Key, item.Value.FirstOrDefault());
+                }
+
+                return _headers;
+            }
+        }
+
+        public string ErrorMessage => Exception?.Message;
+
+        public void Dispose()
+        {
+            _stream?.Dispose();
+            Request?.Dispose();
+            Response?.Dispose();
+        }
     }
 }

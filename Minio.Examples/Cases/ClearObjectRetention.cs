@@ -14,33 +14,37 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-public static class ClearObjectRetention
+namespace Minio.Examples.Cases
 {
-    // Put Empty Retention Configuration for the bucket
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name",
-        string objectName = "my-object-name",
-        string versionId = null)
+    public static class ClearObjectRetention
     {
-        try
+        // Put Empty Retention Configuration for the bucket
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name",
+            string objectName = "my-object-name",
+            string versionId = null)
         {
-            Console.WriteLine("Running example for API: ClearObjectRetention");
-            await minio.ClearObjectRetentionAsync(
-                new ClearObjectRetentionArgs()
-                    .WithBucket(bucketName)
-                    .WithObject(objectName)
-                    .WithVersionId(versionId)
-            ).ConfigureAwait(false);
-            var versionInfo = string.IsNullOrEmpty(versionId) ? "" : " Version ID: " + versionId;
-            Console.WriteLine($"Cleared retention configuration to object {bucketName}/{objectName} " +
-                              versionInfo);
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Object]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: ClearObjectRetention");
+                await minio.ClearObjectRetentionAsync(
+                    new ClearObjectRetentionArgs()
+                        .WithBucket(bucketName)
+                        .WithObject(objectName)
+                        .WithVersionId(versionId)
+                ).ConfigureAwait(false);
+                var versionInfo = string.IsNullOrEmpty(versionId) ? "" : " Version ID: " + versionId;
+                Console.WriteLine($"Cleared retention configuration to object {bucketName}/{objectName} " +
+                                  versionInfo);
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Object]  Exception: {e}");
+            }
         }
     }
 }

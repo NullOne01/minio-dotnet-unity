@@ -1,14 +1,21 @@
 # MinIO Client SDK for .NET  [![Slack](https://slack.min.io/slack?type=svg)](https://slack.min.io)
 
-MinIO Client SDK provides higher level APIs for MinIO and Amazon S3 compatible cloud storage services.For a complete list of APIs and examples, please take a look at the [Dotnet Client API Reference](https://min.io/docs/minio/linux/developers/dotnet/API.html).This document assumes that you have a working VisualStudio development environment.
+MinIO Client SDK provides higher level APIs for MinIO and Amazon S3 compatible cloud storage services.For a complete
+list of APIs and examples, please take a look at
+the [Dotnet Client API Reference](https://min.io/docs/minio/linux/developers/dotnet/API.html).This document assumes that
+you have a working VisualStudio development environment.
 
 ## Install from NuGet
-To install [MinIO .NET package](https://www.nuget.org/packages/Minio/), run the following command in Nuget Package Manager Console.
+
+To install [MinIO .NET package](https://www.nuget.org/packages/Minio/), run the following command in Nuget Package
+Manager Console.
 
 ```powershell
 PM> Install-Package Minio
 ```
+
 ## MinIO Client Example
+
 To connect to an Amazon S3 compatible cloud storage service, you need the following information
 
 | Variable name | Description                                                  |
@@ -44,10 +51,12 @@ foreach (var bucket in getListBucketsTask.Result.Buckets)
 }
 
 ```
+
 ## Complete _File Uploader_ Example
 
 This example program connects to an object storage server, creates a bucket and uploads a file to the bucket.
 To run the following example, click on [Link] and start the project
+
 ```cs
 using System;
 using Minio;
@@ -120,18 +129,24 @@ namespace FileUploader
 ```
 
 ## Running MinIO Client Examples
+
 ### On Windows
+
 * Clone this repository and open the Minio.Sln in Visual Studio 2017.
 
 * Enter your credentials and bucket name, object name etc. in Minio.Examples/Program.cs
 * Uncomment the example test cases such as below in Program.cs to run an example.
+
 ```cs
   //Cases.MakeBucket.Run(minioClient, bucketName).Wait();
 ```
+
 * Run the Minio.Client.Examples project from Visual Studio
 
 ### On Linux
+
 #### Setting .NET SDK on Linux (Ubuntu 22.04)
+
 <blockquote> NOTE: minio-dotnet requires .NET 6.x SDK to build on Linux. </blockquote>
 
 * Install [.Net SDK](https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu#2204)
@@ -150,6 +165,7 @@ sudo apt-get update; \
 ```
 
 #### Running Minio.Examples
+
 * Clone this project.
 
 ```
@@ -158,6 +174,7 @@ $ git clone https://github.com/minio/minio-dotnet && cd minio-dotnet
 
 * Enter your credentials and bucket name, object name etc. in Minio.Examples/Program.cs
   Uncomment the example test cases such as below in Program.cs to run an example.
+
 ```cs
   //Cases.MakeBucket.Run(minioClient, bucketName).Wait();
 ```
@@ -179,19 +196,23 @@ dotnet test ./Minio.Tests/Minio.Tests.csproj
 * [ListenBucketNotifications.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/ListenBucketNotifications.cs)
 
 #### Bucket policy Operations
+
 * [GetBucketPolicy.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/GetBucketPolicy.cs)
 * [SetBucketPolicy.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/SetBucketPolicy.cs)
 
 #### Bucket notification Operations
+
 * [GetBucketNotification.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/GetBucketNotification.cs)
 * [SetBucketNotification.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/SetBucketNotification.cs)
 * [RemoveAllBucketNotifications.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/RemoveAllBucketNotifications.cs)
 
 #### File Object Operations
+
 * [FGetObject.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/FGetObject.cs)
 * [FPutObject.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/FPutObject.cs)
 
 #### Object Operations
+
 * [GetObject.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/GetObject.cs)
 * [GetPartialObject.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/GetPartialObject.cs)
 * [SelectObjectContent.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/SelectObjectContent.cs)
@@ -205,15 +226,18 @@ dotnet test ./Minio.Tests/Minio.Tests.csproj
 * [RemoveIncompleteUpload.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/RemoveIncompleteUpload.cs)
 
 #### Presigned Operations
+
 * [PresignedGetObject.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/PresignedGetObject.cs)
 * [PresignedPutObject.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/PresignedPutObject.cs)
 * [PresignedPostPolicy.cs](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Cases/PresignedPostPolicy.cs)
 
 #### Client Custom Settings
+
 * [SetAppInfo](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Program.cs)
 * [SetTraceOn](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Program.cs)
 * [SetTraceOff](https://github.com/minio/minio-dotnet/blob/master/Minio.Examples/Program.cs)
 
 ## Explore Further
+
 * [Complete Documentation](https://min.io/docs/minio/kubernetes/upstream/index.html)
 * [MinIO .NET SDK API Reference](https://min.io/docs/minio/linux/developers/dotnet/API.html)

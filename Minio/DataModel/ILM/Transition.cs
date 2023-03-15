@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
 /*
@@ -23,28 +24,29 @@ using System.Xml.Serialization;
  * https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html
  */
 
-namespace Minio.DataModel.ILM;
-
-[Serializable]
-[XmlRoot(ElementName = "Transition")]
-public class Transition : Duration
+namespace Minio.DataModel.ILM
 {
-    public Transition()
+    [Serializable]
+    [XmlRoot(ElementName = "Transition")]
+    public class Transition : Duration
     {
-    }
+        public Transition()
+        {
+        }
 
-    public Transition(DateTime date, string storageClass) : base(date)
-    {
-        CheckStorageClass(storageClass);
-        StorageClass = storageClass.ToUpperInvariant();
-    }
+        public Transition(DateTime date, string storageClass) : base(date)
+        {
+            CheckStorageClass(storageClass);
+            StorageClass = storageClass.ToUpperInvariant();
+        }
 
-    [XmlElement(ElementName = "StorageClass", IsNullable = true)]
-    public string StorageClass { get; set; }
+        [XmlElement(ElementName = "StorageClass", IsNullable = true)]
+        public string StorageClass { get; set; }
 
-    internal static void CheckStorageClass(string storageClass)
-    {
-        if (string.IsNullOrEmpty(storageClass) || string.IsNullOrWhiteSpace(storageClass))
-            throw new ArgumentNullException(nameof(StorageClass) + " cannot be empty.");
+        internal static void CheckStorageClass(string storageClass)
+        {
+            if (string.IsNullOrEmpty(storageClass) || string.IsNullOrWhiteSpace(storageClass))
+                throw new ArgumentNullException(nameof(StorageClass) + " cannot be empty.");
+        }
     }
 }

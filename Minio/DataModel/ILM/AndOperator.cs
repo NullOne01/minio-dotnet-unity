@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 using Minio.DataModel.Tags;
 
@@ -24,32 +26,33 @@ using Minio.DataModel.Tags;
  * https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetBucketLifecycleConfiguration.html
  */
 
-namespace Minio.DataModel.ILM;
-
-[Serializable]
-[XmlRoot(ElementName = "And")]
-public class AndOperator
+namespace Minio.DataModel.ILM
 {
-    public AndOperator()
+    [Serializable]
+    [XmlRoot(ElementName = "And")]
+    public class AndOperator
     {
+        public AndOperator()
+        {
+        }
+
+        public AndOperator(string prefix, IList<Tag> tag)
+        {
+            Prefix = prefix;
+            if (tag?.Count > 0) Tags = new List<Tag>(tag);
+        }
+
+        public AndOperator(string prefix, Dictionary<string, string> tags)
+        {
+            Prefix = prefix;
+            if (tags == null || tags.Count == 0)
+                return;
+            foreach (var item in tags) Tags.Add(new Tag(item.Key, item.Value));
+        }
+
+        [XmlElement("Prefix")] internal string Prefix { get; set; }
+
+        [XmlElement(ElementName = "Tag", IsNullable = false)]
+        public List<Tag> Tags { get; set; }
     }
-
-    public AndOperator(string prefix, IList<Tag> tag)
-    {
-        Prefix = prefix;
-        if (tag?.Count > 0) Tags = new List<Tag>(tag);
-    }
-
-    public AndOperator(string prefix, Dictionary<string, string> tags)
-    {
-        Prefix = prefix;
-        if (tags == null || tags.Count == 0)
-            return;
-        foreach (var item in tags) Tags.Add(new Tag(item.Key, item.Value));
-    }
-
-    [XmlElement("Prefix")] internal string Prefix { get; set; }
-
-    [XmlElement(ElementName = "Tag", IsNullable = false)]
-    public List<Tag> Tags { get; set; }
 }

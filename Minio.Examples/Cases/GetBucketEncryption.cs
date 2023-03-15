@@ -14,29 +14,33 @@
  * limitations under the License.
  */
 
-namespace Minio.Examples.Cases;
+using System;
+using System.Threading.Tasks;
 
-public static class GetBucketEncryption
+namespace Minio.Examples.Cases
 {
-    // Get Encryption Configuration for the bucket
-    public static async Task Run(IMinioClient minio,
-        string bucketName = "my-bucket-name")
+    public static class GetBucketEncryption
     {
-        try
+        // Get Encryption Configuration for the bucket
+        public static async Task Run(IMinioClient minio,
+            string bucketName = "my-bucket-name")
         {
-            Console.WriteLine("Running example for API: GetBucketEncryptionAsync");
-            var config = await minio.GetBucketEncryptionAsync(
-                new GetBucketEncryptionArgs()
-                    .WithBucket(bucketName)
-            ).ConfigureAwait(false);
-            Console.WriteLine($"Got encryption configuration for bucket {bucketName}.");
-            if (config != null && config.Rule?.Apply != null)
-                Console.WriteLine("Server Side Encryption Algorithm: " + config.Rule.Apply.SSEAlgorithm);
-            Console.WriteLine();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[Bucket]  Exception: {e}");
+            try
+            {
+                Console.WriteLine("Running example for API: GetBucketEncryptionAsync");
+                var config = await minio.GetBucketEncryptionAsync(
+                    new GetBucketEncryptionArgs()
+                        .WithBucket(bucketName)
+                ).ConfigureAwait(false);
+                Console.WriteLine($"Got encryption configuration for bucket {bucketName}.");
+                if (config != null && config.Rule?.Apply != null)
+                    Console.WriteLine("Server Side Encryption Algorithm: " + config.Rule.Apply.SSEAlgorithm);
+                Console.WriteLine();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[Bucket]  Exception: {e}");
+            }
         }
     }
 }

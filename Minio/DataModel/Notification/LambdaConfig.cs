@@ -14,44 +14,46 @@
  * limitations under the License.
  */
 
+using System;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-/// <summary>
-///     LambdaConfig carries one single cloudfunction notification configuration
-/// </summary>
-[Serializable]
-public class LambdaConfig : NotificationConfiguration
+namespace Minio.DataModel
 {
-    public LambdaConfig()
+    /// <summary>
+    ///     LambdaConfig carries one single cloudfunction notification configuration
+    /// </summary>
+    [Serializable]
+    public class LambdaConfig : NotificationConfiguration
     {
-    }
+        public LambdaConfig()
+        {
+        }
 
-    public LambdaConfig(string arn) : base(arn)
-    {
-        Lambda = arn;
-    }
+        public LambdaConfig(string arn) : base(arn)
+        {
+            Lambda = arn;
+        }
 
-    public LambdaConfig(Arn arn) : base(arn)
-    {
-        Lambda = arn.ToString();
-    }
+        public LambdaConfig(Arn arn) : base(arn)
+        {
+            Lambda = arn.ToString();
+        }
 
-    [XmlElement("CloudFunction")] public string Lambda { get; set; }
+        [XmlElement("CloudFunction")] public string Lambda { get; set; }
 
-    // Implement equality for this object
-    public override bool Equals(object obj)
-    {
-        var other = (LambdaConfig)obj;
-        // If parameter is null return false.
-        if (obj == null)
-            return false;
-        return other.Lambda.Equals(Lambda);
-    }
+        // Implement equality for this object
+        public override bool Equals(object obj)
+        {
+            var other = (LambdaConfig)obj;
+            // If parameter is null return false.
+            if (obj == null)
+                return false;
+            return other.Lambda.Equals(Lambda);
+        }
 
-    public override int GetHashCode()
-    {
-        return Lambda.GetHashCode();
+        public override int GetHashCode()
+        {
+            return Lambda.GetHashCode();
+        }
     }
 }

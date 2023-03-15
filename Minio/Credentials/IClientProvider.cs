@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
+using System.Threading.Tasks;
 using Minio.DataModel;
 
-namespace Minio.Credentials;
-
-public abstract class ClientProvider
+namespace Minio.Credentials
 {
-    public abstract AccessCredentials GetCredentials();
-    public abstract Task<AccessCredentials> GetCredentialsAsync();
+    public abstract class ClientProvider
+    {
+        public abstract AccessCredentials GetCredentials();
+        public abstract Task<AccessCredentials> GetCredentialsAsync();
+    }
 }

@@ -14,38 +14,41 @@
  * limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace Minio.DataModel;
-
-/// <summary>
-///     S3Key - child of Filter, a tag in the notification xml which carries suffix/prefix
-///     filters and allows filtering event notifications based on S3 Object key's name
-/// </summary>
-[Serializable]
-public class S3Key
+namespace Minio.DataModel
 {
-    private List<FilterRule> filterRules;
-
-    [XmlElement("FilterRule")]
-    public List<FilterRule> FilterRules
+    /// <summary>
+    ///     S3Key - child of Filter, a tag in the notification xml which carries suffix/prefix
+    ///     filters and allows filtering event notifications based on S3 Object key's name
+    /// </summary>
+    [Serializable]
+    public class S3Key
     {
-        get
+        private List<FilterRule> filterRules;
+
+        [XmlElement("FilterRule")]
+        public List<FilterRule> FilterRules
         {
-            filterRules ??= new List<FilterRule>();
+            get
+            {
+                filterRules ??= new List<FilterRule>();
 
-            return filterRules;
+                return filterRules;
+            }
+            set => filterRules = value;
         }
-        set => filterRules = value;
-    }
 
-    internal bool IsFilterRulesSet()
-    {
-        return filterRules?.Count > 0;
-    }
+        internal bool IsFilterRulesSet()
+        {
+            return filterRules?.Count > 0;
+        }
 
-    public bool ShouldSerializeFilterRules()
-    {
-        return filterRules.Count > 0;
+        public bool ShouldSerializeFilterRules()
+        {
+            return filterRules.Count > 0;
+        }
     }
 }
