@@ -251,7 +251,7 @@ namespace Minio
 
         internal static string getMD5SumStr(byte[] key)
         {
-            var hashedBytes = MD5.HashData(key);
+            var hashedBytes = MD5.Create().ComputeHash(key);
 
             return Convert.ToBase64String(hashedBytes);
         }
@@ -907,7 +907,7 @@ namespace Minio
 
         internal static HttpRequestMessageBuilder GetEmptyRestRequest(HttpRequestMessageBuilder requestBuilder)
         {
-            var serializedBody = JsonSerializer.Serialize("");
+            var serializedBody = JsonConvert.SerializeObject("");
             requestBuilder.AddOrUpdateHeaderParameter("application/json; charset=utf-8", serializedBody);
             return requestBuilder;
         }

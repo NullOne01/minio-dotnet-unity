@@ -1893,7 +1893,7 @@ namespace Minio
 
             if (RequestBody != null)
             {
-                var hash = SHA256.HashData(RequestBody);
+                var hash = SHA256.Create().ComputeHash(RequestBody);
                 var hex = BitConverter.ToString(hash).Replace("-", string.Empty).ToLowerInvariant();
                 requestMessageBuilder.AddOrUpdateHeaderParameter("x-amz-content-sha256", hex);
                 requestMessageBuilder.SetBody(RequestBody);

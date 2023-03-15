@@ -80,11 +80,12 @@ namespace Minio
             Utils.ValidateFile(tempFileName);
             if (File.Exists(tempFileName)) File.Delete(tempFileName);
 
-            var callbackAsync = async (Stream stream, CancellationToken cancellationToken) =>
-            {
-                using var dest = new FileStream(tempFileName, FileMode.Create, FileAccess.Write);
-                await stream.CopyToAsync(dest, cancellationToken).ConfigureAwait(false);
-            };
+            Func<Stream, CancellationToken, Task> callbackAsync =
+                async (Stream stream, CancellationToken cancellationToken) =>
+                {
+                    using var dest = new FileStream(tempFileName, FileMode.Create, FileAccess.Write);
+                    await stream.CopyToAsync(dest, cancellationToken).ConfigureAwait(false);
+                };
 
 #pragma warning disable IDISP001 // Dispose created
             var cts = new CancellationTokenSource();

@@ -247,7 +247,7 @@ namespace Minio
         /// <returns>Bytes of sha256 checksum</returns>
         private byte[] ComputeSha256(byte[] body)
         {
-            return SHA256.HashData(body);
+            return SHA256.Create().ComputeHash(body);
         }
 
         /// <summary>
@@ -447,8 +447,8 @@ namespace Minio
 
         public static Dictionary<string, TValue> ToDictionary<TValue>(object obj)
         {
-            var json = JsonSerializer.Serialize(obj);
-            var dictionary = JsonSerializer.Deserialize<Dictionary<string, TValue>>(json);
+            var json = JsonConvert.SerializeObject(obj);
+            var dictionary = JsonConvert.DeserializeObject<Dictionary<string, TValue>>(json);
             return dictionary;
         }
 
@@ -537,13 +537,13 @@ namespace Minio
                     return;
                 }
 
-                var hash = SHA256.HashData(body);
+                var hash = SHA256.Create().ComputeHash(body);
                 var hex = BitConverter.ToString(hash).Replace("-", string.Empty).ToLowerInvariant();
                 requestBuilder.AddOrUpdateHeaderParameter("x-amz-content-sha256", hex);
             }
             else if (!isSecure && requestBuilder.Content != null)
             {
-                var hash = MD5.HashData(Encoding.UTF8.GetBytes(requestBuilder.Content.ToString()));
+                var hash = MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(requestBuilder.Content.ToString()));
 
                 var base64 = Convert.ToBase64String(hash);
                 requestBuilder.AddHeaderParameter("Content-Md5", base64);

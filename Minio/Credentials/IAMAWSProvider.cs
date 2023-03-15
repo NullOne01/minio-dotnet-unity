@@ -137,7 +137,7 @@ namespace Minio.Credentials
        Error = null
     };*/
 
-            var credentials = JsonSerializer.Deserialize<ECSCredentials>(response.Content);
+            var credentials = JsonConvert.DeserializeObject<ECSCredentials>(response.Content);
             if (credentials.Code?.Equals("success", StringComparison.OrdinalIgnoreCase) == false)
                 throw new CredentialsProviderException("IAMAWSProvider",
                     "Credential Get operation failed with code: " + credentials.Code + " and message " +
