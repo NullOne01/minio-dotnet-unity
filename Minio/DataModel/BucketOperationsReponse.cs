@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -29,6 +30,7 @@ using Minio.DataModel.ILM;
 using Minio.DataModel.ObjectLock;
 using Minio.DataModel.Replication;
 using Minio.DataModel.Tags;
+using UnityEngine;
 
 namespace Minio
 {
@@ -78,11 +80,21 @@ namespace Minio
             NextMarker = string.Empty;
             foreach (var item in objectList.Item2)
             {
+                Debug.Log($"Item check: {item} with encodingType: {objectList.Item1.EncodingType}");
                 BucketObjectsLastItem = item;
-                if (objectList.Item1.EncodingType == "url") item.Key = HttpUtility.UrlDecode(item.Key);
+                if (objectList.Item1.EncodingType == "url")
+                {
+                    Debug.Log($"Trying to decode: {item}");
+                    item.Key = HttpUtility.UrlDecode(item.Key);
+                    Debug.Log($"Item key decoded: {item.Key}");
+                }
+                Debug.Log($"Before: ItemObservable.OnNext(item): {item}");
                 ItemObservable.OnNext(item);
+                Debug.Log($"After: ItemObservable.OnNext(item): {item}");
             }
 
+            Debug.Log($"objectList.Item1.NextMarker: {objectList.Item1.NextMarker}");
+            Debug.Log($"BucketObjectsLastItem: {BucketObjectsLastItem}");
             if (objectList.Item1.NextMarker != null)
             {
                 if (objectList.Item1.EncodingType == "url")

@@ -108,7 +108,7 @@ namespace Minio.Credentials
             return this;
         }
 
-        public CertificateIdentityProvider WithCertificate(X509Certificate2 cert = null)
+        public CertificateIdentityProvider WiFthCertificate(X509Certificate2 cert = null)
         {
             clientCertificate = cert;
             return this;

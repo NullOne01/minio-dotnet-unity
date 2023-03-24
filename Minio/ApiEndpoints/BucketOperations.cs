@@ -16,12 +16,15 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Reactive.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Cysharp.Threading.Tasks;
 using Minio.DataModel;
 using Minio.DataModel.ILM;
 using Minio.DataModel.ObjectLock;
@@ -29,6 +32,9 @@ using Minio.DataModel.Replication;
 using Minio.DataModel.Tags;
 using Minio.Exceptions;
 using Minio.Helper;
+using UniRx;
+using UnityEngine;
+using EventType = Minio.DataModel.EventType;
 
 namespace Minio
 {
@@ -336,58 +342,67 @@ namespace Minio
         public IObservable<Item> ListObjectsAsync(ListObjectsArgs args, CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            return Observable.Create<Item>(
-                async (obs, ct) =>
-                {
-                    var isRunning = true;
-                    var delimiter = args.Recursive ? string.Empty : "/";
-                    var marker = string.Empty;
-                    uint count = 0;
-                    var versionIdMarker = string.Empty;
-                    var nextContinuationToken = string.Empty;
-                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ct);
-                    while (isRunning)
-                    {
-                        var goArgs = new GetObjectListArgs()
-                            .WithBucket(args.BucketName)
-                            .WithPrefix(args.Prefix)
-                            .WithDelimiter(delimiter)
-                            .WithVersions(args.Versions)
-                            .WithContinuationToken(nextContinuationToken)
-                            .WithMarker(marker)
-                            .WithListObjectsV1(!args.UseV2)
-                            .WithHeaders(args.Headers)
-                            .WithVersionIdMarker(versionIdMarker);
-                        if (args.Versions)
-                        {
-                            var objectList = await GetObjectVersionsListAsync(goArgs, cts.Token).ConfigureAwait(false);
-                            var listObjectsItemResponse = new ListObjectVersionResponse(args, objectList, obs);
-                            if (objectList.Item2.Count == 0 && count == 0) return;
-
-                            obs = listObjectsItemResponse.ItemObservable;
-                            marker = listObjectsItemResponse.NextKeyMarker;
-                            versionIdMarker = listObjectsItemResponse.NextVerMarker;
-                            isRunning = objectList.Item1.IsTruncated;
-                        }
-                        else
-                        {
-                            var objectList = await GetObjectListAsync(goArgs, cts.Token).ConfigureAwait(false);
-                            if (objectList.Item2.Count == 0 && objectList.Item1.KeyCount.Equals("0") && count == 0)
-                                return;
-
-                            var listObjectsItemResponse = new ListObjectsItemResponse(args, objectList, obs);
-                            marker = listObjectsItemResponse.NextMarker;
-                            isRunning = objectList.Item1.IsTruncated;
-                            nextContinuationToken = objectList.Item1.IsTruncated
-                                ? objectList.Item1.NextContinuationToken
-                                : string.Empty;
-                        }
-
-                        cts.Token.ThrowIfCancellationRequested();
-                        count++;
-                    }
-                }
+            return Observable.FromCoroutine<Item>(
+                (observer, token) => ItemObservableAsync(observer, token, args, cancellationToken).ToCoroutine()
             );
+        }
+
+        private async UniTask ItemObservableAsync(IObserver<Item> obs, CancellationToken ct,
+            ListObjectsArgs args, CancellationToken cancellationToken)
+        {
+            var isRunning = true;
+            var delimiter = args.Recursive ? string.Empty : "/";
+            var marker = string.Empty;
+            uint count = 0;
+            var versionIdMarker = string.Empty;
+            var nextContinuationToken = string.Empty;
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ct);
+            while (isRunning)
+            {
+                var goArgs = new GetObjectListArgs()
+                    .WithBucket(args.BucketName)
+                    .WithPrefix(args.Prefix)
+                    .WithDelimiter(delimiter)
+                    .WithVersions(args.Versions)
+                    .WithContinuationToken(nextContinuationToken)
+                    .WithMarker(marker)
+                    .WithListObjectsV1(!args.UseV2)
+                    .WithHeaders(args.Headers)
+                    .WithVersionIdMarker(versionIdMarker);
+                if (args.Versions)
+                {
+                    var objectList = await GetObjectVersionsListAsync(goArgs, cts.Token).ConfigureAwait(false);
+                    var listObjectsItemResponse = new ListObjectVersionResponse(args, objectList, obs);
+                    if (objectList.Item2.Count == 0 && count == 0) return;
+
+                    obs = listObjectsItemResponse.ItemObservable;
+                    marker = listObjectsItemResponse.NextKeyMarker;
+                    versionIdMarker = listObjectsItemResponse.NextVerMarker;
+                    isRunning = objectList.Item1.IsTruncated;
+                }
+                else
+                {
+                    var objectList = await GetObjectListAsync(goArgs, cts.Token);
+                    Debug.Log($"Passed objectList: {objectList}");
+                    if (objectList.Item2.Count == 0 && objectList.Item1.KeyCount.Equals("0") && count == 0)
+                    {
+                        Debug.Log($"Empty objectList :(");
+                        return;
+                    }
+
+                    var listObjectsItemResponse = new ListObjectsItemResponse(args, objectList, obs);
+                    Debug.Log($"Created listObjectsItemResponse: {listObjectsItemResponse}");
+
+                    marker = listObjectsItemResponse.NextMarker;
+                    isRunning = objectList.Item1.IsTruncated;
+                    nextContinuationToken = objectList.Item1.IsTruncated
+                        ? objectList.Item1.NextContinuationToken
+                        : string.Empty;
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+                count++;
+            }
         }
 
         /// <summary>
@@ -476,19 +491,23 @@ namespace Minio
                 throw new ArgumentException(
                     "Listening for bucket notification is specific only to `minio` server endpoints");
 
-            return Observable.Create<MinioNotificationRaw>(
-                async (obs, ct) =>
-                {
-                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ct);
-                    var requestMessageBuilder =
-                        await CreateRequest(args).ConfigureAwait(false);
-                    args = args.WithNotificationObserver(obs)
-                        .WithEnableTrace(trace);
-                    using var response =
-                        await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                            .ConfigureAwait(false);
-                    cts.Token.ThrowIfCancellationRequested();
-                });
+            return Observable.FromCoroutine<MinioNotificationRaw>((observer, token) =>
+                MinioNotificationObservableAsync(observer, token, args, cancellationToken).ToCoroutine());
+        }
+
+        private async UniTask MinioNotificationObservableAsync(IObserver<MinioNotificationRaw> obs,
+            CancellationToken ct,
+            ListenBucketNotificationsArgs args, CancellationToken cancellationToken)
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ct);
+            var requestMessageBuilder =
+                await CreateRequest(args).ConfigureAwait(false);
+            args = args.WithNotificationObserver(obs)
+                .WithEnableTrace(trace);
+            using var response =
+                await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
+                    .ConfigureAwait(false);
+            cts.Token.ThrowIfCancellationRequested();
         }
 
         /// <summary>
@@ -903,10 +922,13 @@ namespace Minio
         private async Task<Tuple<ListBucketResult, List<Item>>> GetObjectListAsync(GetObjectListArgs args,
             CancellationToken cancellationToken = default)
         {
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
-            using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+            Debug.Log("Creating request first...");
+            var requestMessageBuilder = await CreateRequest(args);
+            Debug.Log("Waiting for response...");
+            using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken);
+            Debug.Log("Got response! Time to do smth...");
             var getObjectsListResponse = new GetObjectsListResponse(responseResult.StatusCode, responseResult.Content);
+            Debug.Log($"Got getObjectsListResponse: {getObjectsListResponse}");
             return getObjectsListResponse.ObjectsTuple;
         }
 

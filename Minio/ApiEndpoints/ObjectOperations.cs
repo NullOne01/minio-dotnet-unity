@@ -21,17 +21,18 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Cysharp.Threading.Tasks;
 using Minio.DataModel;
 using Minio.DataModel.ObjectLock;
 using Minio.DataModel.Tags;
 using Minio.Exceptions;
 using Minio.Helper;
+using UniRx;
 
 namespace Minio
 {
@@ -99,35 +100,38 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            return Observable.Create<Upload>(
-                async obs =>
+            return Observable.FromCoroutine<Upload>(observer =>
+                UploadObservableAsync(observer, args, cancellationToken).ToCoroutine());
+        }
+
+        private async UniTask UploadObservableAsync(IObserver<Upload> obs, ListIncompleteUploadsArgs args,
+            CancellationToken cancellationToken)
+        {
+            string nextKeyMarker = null;
+            string nextUploadIdMarker = null;
+            var isRunning = true;
+
+            while (isRunning)
+            {
+                var getArgs = new GetMultipartUploadsListArgs()
+                    .WithBucket(args.BucketName)
+                    .WithDelimiter(args.Delimiter)
+                    .WithPrefix(args.Prefix)
+                    .WithKeyMarker(nextKeyMarker)
+                    .WithUploadIdMarker(nextUploadIdMarker);
+                var uploads = await GetMultipartUploadsListAsync(getArgs, cancellationToken)
+                    .ConfigureAwait(false);
+                if (uploads == null)
                 {
-                    string nextKeyMarker = null;
-                    string nextUploadIdMarker = null;
-                    var isRunning = true;
+                    isRunning = false;
+                    continue;
+                }
 
-                    while (isRunning)
-                    {
-                        var getArgs = new GetMultipartUploadsListArgs()
-                            .WithBucket(args.BucketName)
-                            .WithDelimiter(args.Delimiter)
-                            .WithPrefix(args.Prefix)
-                            .WithKeyMarker(nextKeyMarker)
-                            .WithUploadIdMarker(nextUploadIdMarker);
-                        var uploads = await GetMultipartUploadsListAsync(getArgs, cancellationToken)
-                            .ConfigureAwait(false);
-                        if (uploads == null)
-                        {
-                            isRunning = false;
-                            continue;
-                        }
-
-                        foreach (var upload in uploads.Item2) obs.OnNext(upload);
-                        nextKeyMarker = uploads.Item1.NextKeyMarker;
-                        nextUploadIdMarker = uploads.Item1.NextUploadIdMarker;
-                        isRunning = uploads.Item1.IsTruncated;
-                    }
-                });
+                foreach (var upload in uploads.Item2) obs.OnNext(upload);
+                nextKeyMarker = uploads.Item1.NextKeyMarker;
+                nextUploadIdMarker = uploads.Item1.NextUploadIdMarker;
+                isRunning = uploads.Item1.IsTruncated;
+            }
         }
 
         /// <summary>
@@ -404,13 +408,15 @@ namespace Minio
             else
                 errs = await removeObjectsHelper(args, errs, cancellationToken).ConfigureAwait(false);
 
-            return Observable.Create<DeleteError>( // From Current change
-                async obs =>
-                {
-                    await Task.Yield();
-                    foreach (var error in errs) obs.OnNext(error);
-                }
-            );
+
+            return Observable.FromCoroutine<DeleteError>(observer =>
+                DeleteErrorObservableAsync(observer, errs).ToCoroutine());
+        }
+
+        private async UniTask DeleteErrorObservableAsync(IObserver<DeleteError> obs, IList<DeleteError> errs)
+        {
+            await UniTask.Yield();
+            foreach (var error in errs) obs.OnNext(error);
         }
 
         /// <summary>
@@ -1423,21 +1429,25 @@ namespace Minio
         private IObservable<Part> ListParts(string bucketName, string objectName, string uploadId,
             CancellationToken cancellationToken)
         {
-            return Observable.Create<Part>(
-                async obs =>
-                {
-                    var nextPartNumberMarker = 0;
-                    var isRunning = true;
-                    while (isRunning)
-                    {
-                        var uploads = await GetListPartsAsync(bucketName, objectName, uploadId, nextPartNumberMarker,
-                            cancellationToken).ConfigureAwait(false);
-                        foreach (var part in uploads.Item2) obs.OnNext(part);
+            return Observable.FromCoroutine<Part>(observer =>
+                PartObservableAsync(observer, bucketName, objectName, uploadId, cancellationToken).ToCoroutine());
+        }
 
-                        nextPartNumberMarker = uploads.Item1.NextPartNumberMarker;
-                        isRunning = uploads.Item1.IsTruncated;
-                    }
-                });
+        private async UniTask PartObservableAsync(IObserver<Part> obs, string bucketName, string objectName,
+            string uploadId,
+            CancellationToken cancellationToken)
+        {
+            var nextPartNumberMarker = 0;
+            var isRunning = true;
+            while (isRunning)
+            {
+                var uploads = await GetListPartsAsync(bucketName, objectName, uploadId, nextPartNumberMarker,
+                    cancellationToken).ConfigureAwait(false);
+                foreach (var part in uploads.Item2) obs.OnNext(part);
+
+                nextPartNumberMarker = uploads.Item1.NextPartNumberMarker;
+                isRunning = uploads.Item1.IsTruncated;
+            }
         }
 
         /// <summary>

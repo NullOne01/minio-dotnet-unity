@@ -19,6 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -30,6 +32,7 @@ using Minio.DataModel;
 using Minio.DataModel.Tracing;
 using Minio.Exceptions;
 using Minio.Helper;
+using UnityEngine;
 
 namespace Minio
 {
@@ -48,6 +51,7 @@ namespace Minio
         /// </summary>
         private readonly ApiResponseErrorHandlingDelegate _defaultErrorHandlingDelegate = response =>
         {
+            Debug.Log("_defaultErrorHandlingDelegate");
             if (response.StatusCode < HttpStatusCode.OK || response.StatusCode >= HttpStatusCode.BadRequest)
                 ParseError(response);
         };
@@ -250,7 +254,7 @@ namespace Minio
             if (rgn?.Length == 0)
             {
                 if (!BucketRegionCache.Instance.Exists(bucketName))
-                    rgn = await BucketRegionCache.Update(this, bucketName).ConfigureAwait(false);
+                    rgn = await BucketRegionCache.Update(this, bucketName);
                 else
                     rgn = BucketRegionCache.Instance.Region(bucketName);
             }
@@ -280,9 +284,11 @@ namespace Minio
         internal async Task<HttpRequestMessageBuilder> CreateRequest<T>(BucketArgs<T> args) where T : BucketArgs<T>
         {
             ArgsCheck(args);
+            Debug.Log("Creating request...");
             var requestMessageBuilder =
                 await CreateRequest(args.RequestMethod, args.BucketName, headerMap: args.Headers,
-                    isBucketCreationRequest: args.IsBucketCreationRequest).ConfigureAwait(false);
+                    isBucketCreationRequest: args.IsBucketCreationRequest);
+            Debug.Log("Building request...");
             return args.BuildRequest(requestMessageBuilder);
         }
 
@@ -336,10 +342,11 @@ namespace Minio
             var region = string.Empty;
             if (bucketName != null)
             {
+                Debug.Log("Time to find region...");
                 Utils.ValidateBucketName(bucketName);
                 // Fetch correct region for bucket if this is not a bucket creation
                 if (!isBucketCreationRequest)
-                    region = await GetRegion(bucketName).ConfigureAwait(false);
+                    region = await GetRegion(bucketName);
             }
 
             if (objectName != null) Utils.ValidateObjectName(objectName);
@@ -534,7 +541,7 @@ namespace Minio
         /// <param name="cancellationToken">Optional cancellation token to cancel the operation</param>
         /// <param name="isSts">boolean; if true role credentials, otherwise IAM user</param>
         /// <returns>ResponseResult</returns>
-        internal Task<ResponseResult> ExecuteTaskAsync(
+        internal async Task<ResponseResult> ExecuteTaskAsync(
             IEnumerable<ApiResponseErrorHandlingDelegate> errorHandlers,
             HttpRequestMessageBuilder requestMessageBuilder,
             CancellationToken cancellationToken = default,
@@ -548,9 +555,10 @@ namespace Minio
                 cancellationToken = timeoutTokenSource.Token;
             }
 
-            return ExecuteWithRetry(
-                () => ExecuteTaskCoreAsync(errorHandlers, requestMessageBuilder,
-                    cancellationToken, isSts));
+            // return ExecuteWithRetry(
+            //     async () => await ExecuteTaskCoreAsync(errorHandlers, requestMessageBuilder,
+            //         cancellationToken, isSts));
+            return await ExecuteTaskCoreAsync(errorHandlers, requestMessageBuilder, cancellationToken, isSts);
         }
 
         private async Task<ResponseResult> ExecuteTaskCoreAsync(
@@ -578,9 +586,13 @@ namespace Minio
             ResponseResult responseResult = null;
             try
             {
-                var response = await httpClient.SendAsync(request,
-                        HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-                    .ConfigureAwait(false);
+                // TODO(nullone):
+                // var response = await httpClient.SendAsync(request,
+                //         HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                //     .ConfigureAwait(false);
+                var response = await httpClient
+                    .UnitySendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                Debug.Log("Got response here...");
                 responseResult = new ResponseResult(request, response);
                 if (requestMessageBuilder.ResponseWriter != null)
                     requestMessageBuilder.ResponseWriter(responseResult.ContentStream);
@@ -594,11 +606,16 @@ namespace Minio
             }
             catch (Exception e)
             {
+                Debug.Log("Found exception, see below...");
+                Debug.LogException(e);
                 responseResult?.Dispose();
                 responseResult = new ResponseResult(request, e);
             }
 
+            Debug.Log("Handling response here...");
             HandleIfErrorResponse(responseResult, errorHandlers, startTime);
+            Debug.Log("responseResult return after Handling response here...");
+            
             return responseResult;
         }
 
@@ -608,15 +625,25 @@ namespace Minio
         /// <param name="response"></param>
         internal static void ParseError(ResponseResult response)
         {
+            Debug.Log("ParseError");
+
             if (response == null)
+            {
+                Debug.Log("response == null");
+
                 throw new ConnectionException(
                     "Response is nil. Please report this issue https://github.com/minio/minio-dotnet/issues", response);
+            }
 
             if (HttpStatusCode.Redirect.Equals(response.StatusCode) ||
                 HttpStatusCode.TemporaryRedirect.Equals(response.StatusCode) ||
                 HttpStatusCode.MovedPermanently.Equals(response.StatusCode))
+            {
+                Debug.Log("Redirect shit");
+
                 throw new RedirectionException(
                     "Redirection detected. Please report this issue https://github.com/minio/minio-dotnet/issues");
+            }
 
             if (string.IsNullOrWhiteSpace(response.Content))
             {
@@ -629,6 +656,8 @@ namespace Minio
 
         private static void ParseErrorNoContent(ResponseResult response)
         {
+            Debug.Log("ParseErrorNoContent");
+
             if (HttpStatusCode.Forbidden.Equals(response.StatusCode)
                 || HttpStatusCode.BadRequest.Equals(response.StatusCode)
                 || HttpStatusCode.NotFound.Equals(response.StatusCode)
@@ -637,13 +666,20 @@ namespace Minio
                 ParseWellKnownErrorNoContent(response);
 
             if (response.StatusCode == 0)
+            {
+                Debug.LogError($"Connection error: {response.ErrorMessage}");
                 throw new ConnectionException("Connection error:" + response.ErrorMessage, response);
+            }
+
+            Debug.LogError($"Unsuccessful response from server without XML: {response.ErrorMessage}");
             throw new InternalClientException(
                 "Unsuccessful response from server without XML:" + response.ErrorMessage, response);
         }
 
         private static void ParseWellKnownErrorNoContent(ResponseResult response)
         {
+            Debug.Log("ParseWellKnownErrorNoContent");
+
             MinioException error = null;
             var errorResponse = new ErrorResponse();
 
@@ -730,22 +766,34 @@ namespace Minio
 
         private static void ParseErrorFromContent(ResponseResult response)
         {
+            Debug.Log("ParseErrorFromContent");
+
             if (response.StatusCode.Equals(HttpStatusCode.NotFound)
                 && response.Request.RequestUri.PathAndQuery.EndsWith("?location")
                 && response.Request.Method.Equals(HttpMethod.Get))
             {
+                Debug.Log("ParseErrorFromContent: NotFound");
+
                 var bucketName = response.Request.RequestUri.PathAndQuery.Split('?')[0];
                 BucketRegionCache.Instance.Remove(bucketName);
                 throw new BucketNotFoundException(bucketName, "Not found.");
             }
 
+            Debug.Log("ParseErrorFromContent: Reading bytes");
+            
             var contentBytes = Encoding.UTF8.GetBytes(response.Content);
             using var stream = new MemoryStream(contentBytes);
             var errResponse = (ErrorResponse)new XmlSerializer(typeof(ErrorResponse)).Deserialize(stream);
 
+            Debug.Log("ParseErrorFromContent: errResponse deserialized...");
+
             if (response.StatusCode.Equals(HttpStatusCode.Forbidden)
                 && (errResponse.Code.Equals("SignatureDoesNotMatch") || errResponse.Code.Equals("InvalidAccessKeyId")))
+            {
+                Debug.Log("ParseErrorFromContent: Forbidden");
+
                 throw new AuthorizationException(errResponse.Resource, errResponse.BucketName, errResponse.Message);
+            }
 
             // Handle XML response for Bucket Policy not found case
             if (response.StatusCode.Equals(HttpStatusCode.NotFound)
@@ -807,9 +855,13 @@ namespace Minio
             IEnumerable<ApiResponseErrorHandlingDelegate> handlers,
             DateTime startTime)
         {
+            Debug.Log("HandleIfErrorResponse");
+            
             // Logs Response if HTTP tracing is enabled
             if (trace)
             {
+                Debug.Log("HandleIfErrorResponse: trace");
+
                 var now = DateTime.Now;
                 LogRequest(response.Request, response, (now - startTime).TotalMilliseconds);
             }
@@ -818,6 +870,8 @@ namespace Minio
 
             // Run through handlers passed to take up error handling
             foreach (var handler in handlers) handler(response);
+
+            Debug.Log("Before _defaultErrorHandlingDelegate");
 
             // Fall back default error handler
             _defaultErrorHandlingDelegate(response);
@@ -865,6 +919,8 @@ namespace Minio
         private Task<ResponseResult> ExecuteWithRetry(
             Func<Task<ResponseResult>> executeRequestCallback)
         {
+            Debug.Log($"ExecuteWithRetry: {retryPolicyHandler}...");
+            
             return retryPolicyHandler == null
                 ? executeRequestCallback()
                 : retryPolicyHandler(executeRequestCallback);
