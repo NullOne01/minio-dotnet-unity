@@ -265,7 +265,7 @@ namespace Minio
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(ResponseContent));
             using var streamReader = new StreamReader(stream);
             PolicyJsonString = await streamReader.ReadToEndAsync()
-                .ConfigureAwait(false);
+                ;
         }
     }
 

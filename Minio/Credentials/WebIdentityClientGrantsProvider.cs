@@ -52,7 +52,7 @@ namespace Minio.Credentials
         {
             Validate();
             var jwt = JWTSupplier();
-            var requestMessageBuilder = await base.BuildRequest().ConfigureAwait(false);
+            var requestMessageBuilder = await base.BuildRequest();
             requestMessageBuilder = Utils.GetEmptyRestRequest(requestMessageBuilder);
             requestMessageBuilder.AddQueryParameter("WebIdentityToken", jwt.AccessToken);
             await Task.Yield();

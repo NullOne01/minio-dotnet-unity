@@ -184,7 +184,7 @@ namespace Minio
         /// </summary>
         public async Task<HttpResponseMessage> WrapperGetAsync(string url)
         {
-            var response = await httpClient.GetAsync(url).ConfigureAwait(false);
+            var response = await httpClient.GetAsync(url);
             return response;
         }
 
@@ -193,7 +193,7 @@ namespace Minio
         /// </summary>
         public Task WrapperPutAsync(string url, StreamContent strm)
         {
-            return Task.Run(async () => await httpClient.PutAsync(url, strm).ConfigureAwait(false));
+            return Task.Run(async () => await httpClient.PutAsync(url, strm));
         }
 
         /// <summary>
@@ -310,7 +310,7 @@ namespace Minio
                     args.ObjectName,
                     args.Headers,
                     contentType,
-                    args.RequestBody).ConfigureAwait(false);
+                    args.RequestBody);
             return args.BuildRequest(requestMessageBuilder);
         }
 
@@ -365,7 +365,7 @@ namespace Minio
                 if (isAWSEnvProvider)
                 {
                     var aWSEnvProvider = (AWSEnvironmentProvider)Provider;
-                    creds = await aWSEnvProvider.GetCredentialsAsync().ConfigureAwait(false);
+                    creds = await aWSEnvProvider.GetCredentialsAsync();
                 }
                 else if (isIAMAWSProvider)
                 {
@@ -374,7 +374,7 @@ namespace Minio
                 }
                 else
                 {
-                    creds = await Provider.GetCredentialsAsync().ConfigureAwait(false);
+                    creds = await Provider.GetCredentialsAsync();
                 }
 
                 if (creds != null)
@@ -589,7 +589,7 @@ namespace Minio
                 // TODO(nullone):
                 // var response = await httpClient.SendAsync(request,
                 //         HttpCompletionOption.ResponseHeadersRead, cancellationToken)
-                //     .ConfigureAwait(false);
+                //     ;
                 var response = await httpClient
                     .UnitySendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
                 Debug.Log("Got response here...");
@@ -598,7 +598,7 @@ namespace Minio
                     requestMessageBuilder.ResponseWriter(responseResult.ContentStream);
                 if (requestMessageBuilder.FunctionResponseWriter != null)
                     await requestMessageBuilder.FunctionResponseWriter(responseResult.ContentStream, cancellationToken)
-                        .ConfigureAwait(false);
+                        ;
             }
             catch (OperationCanceledException)
             {

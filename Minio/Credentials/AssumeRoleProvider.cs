@@ -101,14 +101,14 @@ namespace Minio.Credentials
         {
             if (credentials?.AreExpired() == false) return credentials;
 
-            var requestBuilder = await BuildRequest().ConfigureAwait(false);
+            var requestBuilder = await BuildRequest();
             if (Client != null)
             {
                 ResponseResult responseResult = null;
                 try
                 {
                     responseResult = await Client.ExecuteTaskAsync(NoErrorHandlers, requestBuilder, isSts: true)
-                        .ConfigureAwait(false);
+                        ;
 
                     AssumeRoleResponse assumeRoleResp = null;
                     if (responseResult.Response.IsSuccessStatusCode)
@@ -142,7 +142,7 @@ namespace Minio.Credentials
             if (DurationInSeconds == null || DurationInSeconds.Value == 0)
                 DurationInSeconds = DefaultDurationInSeconds;
 
-            var requestMessageBuilder = await Client.CreateRequest(HttpMethod.Post).ConfigureAwait(false);
+            var requestMessageBuilder = await Client.CreateRequest(HttpMethod.Post);
 
             using var formContent = new FormUrlEncodedContent(new[]
             {
@@ -150,7 +150,7 @@ namespace Minio.Credentials
                 new KeyValuePair<string, string>("DurationSeconds", DurationInSeconds.ToString()),
                 new KeyValuePair<string, string>("Version", "2011-06-15")
             });
-            var byteArrContent = await formContent.ReadAsByteArrayAsync().ConfigureAwait(false);
+            var byteArrContent = await formContent.ReadAsByteArrayAsync();
             requestMessageBuilder.SetBody(byteArrContent);
             requestMessageBuilder.AddOrUpdateHeaderParameter("Content-Type",
                 "application/x-www-form-urlencoded; charset=utf-8");

@@ -116,7 +116,7 @@ namespace Minio.Credentials
 
         public override AccessCredentials GetCredentials()
         {
-            var t = Task.Run(async () => await GetCredentialsAsync().ConfigureAwait(false));
+            var t = Task.Run(async () => await GetCredentialsAsync());
             t.Wait();
             return t.Result;
         }
@@ -131,12 +131,12 @@ namespace Minio.Credentials
 
             if (clientCertificate == null) throw new ArgumentException("clientCertificate cannot be null or empty");
 
-            using var response = await httpClient.PostAsync(postEndpoint, null).ConfigureAwait(false);
+            using var response = await httpClient.PostAsync(postEndpoint, null);
 
             var certResponse = new CertificateResponse();
             if (response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var content = await response.Content.ReadAsStringAsync();
                 var contentBytes = Encoding.UTF8.GetBytes(content);
 
                 using var stream = new MemoryStream(contentBytes);

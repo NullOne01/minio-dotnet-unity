@@ -26,7 +26,8 @@ namespace Minio.Helper
         private static HttpResponseMessage CreateResponse(UnityWebRequest unityRequest, HttpClient httpClient,
             HttpRequestMessage httpRequestMessage)
         {
-            HttpResponseMessage httpResponseMessage = new HttpResponseMessage((HttpStatusCode) unityRequest.responseCode);
+            HttpResponseMessage httpResponseMessage =
+                new HttpResponseMessage((HttpStatusCode)unityRequest.responseCode);
             httpResponseMessage.RequestMessage = httpRequestMessage;
 
             switch (unityRequest.result)
@@ -39,27 +40,66 @@ namespace Minio.Helper
                     break;
                 case UnityWebRequest.Result.Success:
                     Debug.Log($"I want to place content");
-                    var contentBytes = unityRequest.downloadHandler.data;
-                    httpResponseMessage.Content = new ByteArrayContent(contentBytes);
-                    Debug.Log($"I placed content!");
+                    if (unityRequest.downloadHandler != null && unityRequest.downloadHandler.data != null)
+                    {
+                        var contentBytes = unityRequest.downloadHandler.data;
+                        httpResponseMessage.Content = new ByteArrayContent(contentBytes);
+                        Debug.Log($"I placed downloaded content!");
+                    }
+                    else
+                    {
+                        httpResponseMessage.Content = new StringContent("");
+                        Debug.Log($"I used own empty content!");
+                    }
+
                     foreach (var (headerName, headerContent) in unityRequest.GetResponseHeaders())
                     {
-                        Debug.Log($"I want to place {headerName} with {headerContent}...");
-                        if (headerName.ToLower().StartsWith("content-"))
+                        var headerContentMut = headerContent;
+                        Debug.Log($"I want to place {headerName} with {headerContentMut}...");
+                        
+                        // E-tag. Format change from W/"..." to "..."
+                        if (headerName.ToLower() == "etag")
                         {
-                            httpResponseMessage.Content.Headers.Add(headerName, headerContent);
-                            Debug.Log($"Placed to content: {headerName} with {headerContent}...");
+                            if (headerContentMut.StartsWith("W/"))
+                            {
+                                headerContentMut = headerContentMut.Remove(0, 2);
+                            }
                         }
-                        else
-                        {
-                            httpResponseMessage.Headers.Add(headerName, headerContent);
-                            Debug.Log($"Placed to headers: {headerName} with {headerContent}...");
-                        }
+                        
+                        httpResponseMessage.Headers.TryAddWithoutValidation(headerName, headerContentMut);
+                        Debug.Log($"Placed to raw header: {headerName} with {headerContentMut}...");
+                        
+                        // if (headerName.ToLower().StartsWith("content-"))
+                        // {
+                        //     httpResponseMessage.Content.Headers.Add(headerName, headerContent);
+                        //     Debug.Log($"Placed to content: {headerName} with {headerContent}...");
+                        // }
+                        // else
+                        // {
+                        //     httpResponseMessage.Headers.Add(headerName, headerContent);
+                        //     Debug.Log($"Placed to headers: {headerName} with {headerContent}...");
+                        // }
                     }
+
                     break;
             }
 
             return httpResponseMessage;
+        }
+
+        private static async Task<HttpResponseMessage> UnityGetResponse(UnityWebRequest webRequest,
+            HttpClient httpClient,
+            HttpRequestMessage httpRequestMessage,
+            HttpCompletionOption httpCompletionOption,
+            CancellationToken cancellationToken)
+        {
+            FillUnityRequest(webRequest, httpClient, httpRequestMessage);
+
+            var result = await webRequest.SendWebRequest().WithCancellation(cancellationToken);
+
+            var response = CreateResponse(result, httpClient, httpRequestMessage);
+
+            return response;
         }
 
         public static async Task<HttpResponseMessage> UnitySendAsync(this HttpClient httpClient,
@@ -68,31 +108,23 @@ namespace Minio.Helper
             CancellationToken cancellationToken)
         {
             await UniTask.SwitchToMainThread();
-            
+
+            UnityWebRequest unityWebRequest = null;
             if (httpRequestMessage.Method == HttpMethod.Get)
             {
-                return await UnityGetAsync(httpClient, httpRequestMessage, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                unityWebRequest = UnityWebRequest.Get(httpRequestMessage.RequestUri);
+            } else if (httpRequestMessage.Method == HttpMethod.Head)
+            {
+                unityWebRequest = UnityWebRequest.Head(httpRequestMessage.RequestUri);
             }
 
-            throw new Exception("Method was not get lol");
-        }
+            if (unityWebRequest == null)
+            {
+                throw new NotImplementedException($"Method {httpRequestMessage.Method} is not implemented yet");
+            }
 
-        public static async Task<HttpResponseMessage> UnityGetAsync(this HttpClient httpClient,
-            HttpRequestMessage httpRequestMessage,
-            HttpCompletionOption httpCompletionOption,
-            CancellationToken cancellationToken)
-        {
-            UnityWebRequest webRequest = UnityWebRequest.Get(httpRequestMessage.RequestUri);
-            FillUnityRequest(webRequest, httpClient, httpRequestMessage);
-
-            Debug.Log($"Get Url: {webRequest.url}");
-            var result = await webRequest.SendWebRequest().WithCancellation(cancellationToken);
-            
-            Debug.Log($"Got result from Url: {result.result}. Time to make response...");
-            var response = CreateResponse(result, httpClient, httpRequestMessage);
-            Debug.Log($"Got result from Url: {response} \n Content: {response.Content}");
-
-            return response;
+            return await UnityGetResponse(unityWebRequest, httpClient, httpRequestMessage, httpCompletionOption,
+                cancellationToken);
         }
     }
 }
