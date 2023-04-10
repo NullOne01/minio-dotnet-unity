@@ -571,7 +571,7 @@ namespace Minio
             // Upload object in single part if size falls under restricted part size.
             if (args.ObjectSize < Constants.MinimumPartSize && args.ObjectSize >= 0 && args.ObjectStreamData != null)
             {
-                var bytes = await ReadFullAsync(args.ObjectStreamData, (int)args.ObjectSize);
+                var bytes = ReadFull(args.ObjectStreamData, (int)args.ObjectSize);
                 var bytesRead = bytes?.Length ?? 0;
                 if (bytesRead != (int)args.ObjectSize)
                     throw new UnexpectedShortReadException(
@@ -1185,7 +1185,7 @@ namespace Minio
             var etags = new Dictionary<int, string>();
             for (partNumber = 1; partNumber <= partCount; partNumber++)
             {
-                var dataToCopy = await ReadFullAsync(args.ObjectStreamData, (int)partSize);
+                var dataToCopy = ReadFull(args.ObjectStreamData, (int)partSize);
                 if (dataToCopy == null && numPartsUploaded > 0) break;
                 if (partNumber == partCount) expectedReadSize = lastPartSize;
                 var putObjectArgs = new PutObjectArgs(args)
@@ -1611,6 +1611,34 @@ namespace Minio
                 var curData = new byte[currentPartSize - totalRead];
                 var curRead = await data.ReadAsync(curData.AsMemory(0, currentPartSize - totalRead))
                     ;
+                if (curRead == 0) break;
+                for (var i = 0; i < curRead; i++) result[totalRead + i] = curData[i];
+                totalRead += curRead;
+            }
+
+            if (totalRead == 0) return null;
+
+            if (totalRead == currentPartSize) return result;
+
+            var truncatedResult = new byte[totalRead];
+            for (var i = 0; i < totalRead; i++) truncatedResult[i] = result[i];
+            return truncatedResult;
+        }
+        
+        /// <summary>
+        ///     Advances in the stream upto currentPartSize or End of Stream
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="currentPartSize"></param>
+        /// <returns>bytes read in a byte array</returns>
+        internal byte[] ReadFull(Stream data, int currentPartSize)
+        {
+            var result = new byte[currentPartSize];
+            var totalRead = 0;
+            while (totalRead < currentPartSize)
+            {
+                var curData = new byte[currentPartSize - totalRead];
+                var curRead = data.Read(curData, 0, currentPartSize - totalRead);
                 if (curRead == 0) break;
                 for (var i = 0; i < curRead; i++) result[totalRead + i] = curData[i];
                 totalRead += curRead;
