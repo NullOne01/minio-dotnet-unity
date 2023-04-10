@@ -21,6 +21,17 @@ namespace Minio.Helper
                 var headerContent = string.Join(",", headerContentParts.ToArray());
                 unityWebRequest.SetRequestHeader(headerName, headerContent);
             }
+
+            if (httpRequestMessage.Content == null)
+            {
+                return;
+            }
+            
+            foreach (var (headerName, headerContentParts) in httpRequestMessage.Content.Headers)
+            {
+                var headerContent = string.Join(",", headerContentParts.ToArray());
+                unityWebRequest.SetRequestHeader(headerName, headerContent);
+            }
         }
 
         private static HttpResponseMessage CreateResponse(UnityWebRequest unityRequest, HttpClient httpClient,
@@ -68,17 +79,6 @@ namespace Minio.Helper
                         
                         httpResponseMessage.Headers.TryAddWithoutValidation(headerName, headerContentMut);
                         Debug.Log($"Placed to raw header: {headerName} with {headerContentMut}...");
-                        
-                        // if (headerName.ToLower().StartsWith("content-"))
-                        // {
-                        //     httpResponseMessage.Content.Headers.Add(headerName, headerContent);
-                        //     Debug.Log($"Placed to content: {headerName} with {headerContent}...");
-                        // }
-                        // else
-                        // {
-                        //     httpResponseMessage.Headers.Add(headerName, headerContent);
-                        //     Debug.Log($"Placed to headers: {headerName} with {headerContent}...");
-                        // }
                     }
 
                     break;
@@ -116,6 +116,24 @@ namespace Minio.Helper
             } else if (httpRequestMessage.Method == HttpMethod.Head)
             {
                 unityWebRequest = UnityWebRequest.Head(httpRequestMessage.RequestUri);
+            } else if (httpRequestMessage.Method == HttpMethod.Put)
+            {
+                var byteArray = await httpRequestMessage.Content.ReadAsByteArrayAsync();
+                unityWebRequest = UnityWebRequest.Put(httpRequestMessage.RequestUri, byteArray);
+            } else if (httpRequestMessage.Method == HttpMethod.Post)
+            {
+                if (httpRequestMessage.Content is ByteArrayContent)
+                {
+                    // UnityWebRequest.Post doesn't have ctor with byteArray, so using Put.
+                    var byteArray = await httpRequestMessage.Content.ReadAsByteArrayAsync();
+                    unityWebRequest = UnityWebRequest.Put(httpRequestMessage.RequestUri, byteArray);
+                    unityWebRequest.method = "POST";
+                }
+                else
+                {
+                    var stringArray = await httpRequestMessage.Content.ReadAsStringAsync();
+                    unityWebRequest = UnityWebRequest.Post(httpRequestMessage.RequestUri, stringArray);
+                }
             }
 
             if (unityWebRequest == null)
