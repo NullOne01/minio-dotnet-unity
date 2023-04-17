@@ -134,6 +134,8 @@ namespace Minio
                 nextUploadIdMarker = uploads.Item1.NextUploadIdMarker;
                 isRunning = uploads.Item1.IsTruncated;
             }
+            
+            obs.OnCompleted();
         }
 
         /// <summary>
@@ -419,6 +421,7 @@ namespace Minio
         {
             await UniTask.Yield();
             foreach (var error in errs) obs.OnNext(error);
+            obs.OnCompleted();
         }
 
         /// <summary>
@@ -1451,6 +1454,8 @@ namespace Minio
                 nextPartNumberMarker = uploads.Item1.NextPartNumberMarker;
                 isRunning = uploads.Item1.IsTruncated;
             }
+            
+            obs.OnCompleted();
         }
 
         /// <summary>

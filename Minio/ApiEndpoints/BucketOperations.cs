@@ -387,6 +387,7 @@ namespace Minio
                     if (objectList.Item2.Count == 0 && objectList.Item1.KeyCount.Equals("0") && count == 0)
                     {
                         Debug.Log($"Empty objectList :(");
+                        obs.OnCompleted();
                         return;
                     }
 
@@ -403,6 +404,8 @@ namespace Minio
                 cts.Token.ThrowIfCancellationRequested();
                 count++;
             }
+            
+            obs.OnCompleted();
         }
 
         /// <summary>
@@ -508,6 +511,7 @@ namespace Minio
                 await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
                     ;
             cts.Token.ThrowIfCancellationRequested();
+            obs.OnCompleted();
         }
 
         /// <summary>

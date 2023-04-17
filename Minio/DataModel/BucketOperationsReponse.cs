@@ -89,7 +89,7 @@ namespace Minio
                     Debug.Log($"Item key decoded: {item.Key}");
                 }
                 Debug.Log($"Before: ItemObservable.OnNext(item): {item}");
-                ItemObservable.OnNext(item);
+                ItemObservable.OnNext(item); 
                 Debug.Log($"After: ItemObservable.OnNext(item): {item}");
             }
 
