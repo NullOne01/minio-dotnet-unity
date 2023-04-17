@@ -50,23 +50,23 @@ namespace Minio.Helper
                     httpResponseMessage.ReasonPhrase = unityRequest.error;
                     break;
                 case UnityWebRequest.Result.Success:
-                    Debug.Log($"I want to place content");
+                    // Debug.Log($"I want to place content");
                     if (unityRequest.downloadHandler != null && unityRequest.downloadHandler.data != null)
                     {
                         var contentBytes = unityRequest.downloadHandler.data;
                         httpResponseMessage.Content = new ByteArrayContent(contentBytes);
-                        Debug.Log($"I placed downloaded content!");
+                        // Debug.Log($"I placed downloaded content!");
                     }
                     else
                     {
                         httpResponseMessage.Content = new StringContent("");
-                        Debug.Log($"I used own empty content!");
+                        // Debug.Log($"I used own empty content!");
                     }
 
                     foreach (var (headerName, headerContent) in unityRequest.GetResponseHeaders())
                     {
                         var headerContentMut = headerContent;
-                        Debug.Log($"I want to place {headerName} with {headerContentMut}...");
+                        // Debug.Log($"I want to place {headerName} with {headerContentMut}...");
                         
                         // E-tag. Format change from W/"..." to "..."
                         if (headerName.ToLower() == "etag")
@@ -78,7 +78,7 @@ namespace Minio.Helper
                         }
                         
                         httpResponseMessage.Headers.TryAddWithoutValidation(headerName, headerContentMut);
-                        Debug.Log($"Placed to raw header: {headerName} with {headerContentMut}...");
+                        // Debug.Log($"Placed to raw header: {headerName} with {headerContentMut}...");
                     }
 
                     break;
