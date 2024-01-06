@@ -555,10 +555,9 @@ namespace Minio
                 cancellationToken = timeoutTokenSource.Token;
             }
 
-            // return ExecuteWithRetry(
-            //     async () => await ExecuteTaskCoreAsync(errorHandlers, requestMessageBuilder,
-            //         cancellationToken, isSts));
-            return await ExecuteTaskCoreAsync(errorHandlers, requestMessageBuilder, cancellationToken, isSts);
+            return await ExecuteWithRetry(
+                async () => await ExecuteTaskCoreAsync(errorHandlers, requestMessageBuilder,
+                    cancellationToken, isSts));
         }
 
         private async Task<ResponseResult> ExecuteTaskCoreAsync(
