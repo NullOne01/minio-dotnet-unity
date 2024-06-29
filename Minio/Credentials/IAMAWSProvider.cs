@@ -124,7 +124,7 @@ namespace Minio.Credentials
             using var response =
                 await Minio_Client
                     .ExecuteTaskAsync(Enumerable.Empty<ApiResponseErrorHandlingDelegate>(), requestBuilder)
-                    .ConfigureAwait(false);
+                    ;
             if (string.IsNullOrWhiteSpace(response.Content) ||
                 !HttpStatusCode.OK.Equals(response.StatusCode))
                 throw new CredentialsProviderException("IAMAWSProvider",
@@ -173,10 +173,10 @@ namespace Minio.Credentials
             }
             else
             {
-                url = await GetIamRoleNamedURL().ConfigureAwait(false);
+                url = await GetIamRoleNamedURL();
             }
 
-            Credentials = await GetAccessCredentials(url).ConfigureAwait(false);
+            Credentials = await GetAccessCredentials(url);
             return Credentials;
         }
 
@@ -189,7 +189,7 @@ namespace Minio.Credentials
             using var response =
                 await Minio_Client
                     .ExecuteTaskAsync(Enumerable.Empty<ApiResponseErrorHandlingDelegate>(), requestBuilder)
-                    .ConfigureAwait(false);
+                    ;
 
             if (string.IsNullOrWhiteSpace(response.Content) ||
                 !HttpStatusCode.OK.Equals(response.StatusCode))
@@ -223,7 +223,7 @@ namespace Minio.Credentials
                 newUrlStr = urlStr;
             }
 
-            var roleName = await GetIamRoleNameAsync(url).ConfigureAwait(false);
+            var roleName = await GetIamRoleNameAsync(url);
             newUrlStr += roleName;
             return new Uri(newUrlStr);
         }

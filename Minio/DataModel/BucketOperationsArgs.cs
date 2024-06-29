@@ -407,7 +407,7 @@ namespace Minio
                 while (!sr.EndOfStream)
                     try
                     {
-                        var line = await sr.ReadLineAsync().ConfigureAwait(false);
+                        var line = await sr.ReadLineAsync();
                         if (string.IsNullOrEmpty(line))
                             break;
 

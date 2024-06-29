@@ -220,7 +220,7 @@ namespace Minio
             if (responseHeaders.ContainsKey("Etag"))
             {
                 if (!string.IsNullOrEmpty("Etag"))
-                    Etag = responseHeaders["ETag"];
+                    Etag = responseHeaders["Etag"];
                 return;
             }
 

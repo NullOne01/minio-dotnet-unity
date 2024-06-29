@@ -16,14 +16,15 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Cysharp.Threading.Tasks;
 using Minio.DataModel;
 using Minio.DataModel.ILM;
 using Minio.DataModel.ObjectLock;
@@ -31,6 +32,9 @@ using Minio.DataModel.Replication;
 using Minio.DataModel.Tags;
 using Minio.Exceptions;
 using Minio.Helper;
+using UniRx;
+using UnityEngine;
+using EventType = Minio.DataModel.EventType;
 
 namespace Minio
 {
@@ -188,9 +192,9 @@ namespace Minio
         public async Task<ListAllMyBucketsResult> ListBucketsAsync(
             CancellationToken cancellationToken = default)
         {
-            var requestMessageBuilder = await CreateRequest(HttpMethod.Get).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(HttpMethod.Get);
             using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             var bucketList = new ListAllMyBucketsResult();
             if (HttpStatusCode.OK.Equals(response.StatusCode))
@@ -214,9 +218,9 @@ namespace Minio
             args?.Validate();
             try
             {
-                var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+                var requestMessageBuilder = await CreateRequest(args);
                 using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                    .ConfigureAwait(false);
+                    ;
             }
             catch (InternalClientException ice)
             {
@@ -245,9 +249,9 @@ namespace Minio
         public async Task RemoveBucketAsync(RemoveBucketArgs args, CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var response = await ExecuteTaskAsync(NoErrorHandlers,
-                requestMessageBuilder, cancellationToken).ConfigureAwait(false);
+                requestMessageBuilder, cancellationToken);
         }
 
         /// <summary>
@@ -269,9 +273,9 @@ namespace Minio
                 args.Location = Region;
 
             args.IsBucketCreationRequest = true;
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -290,9 +294,9 @@ namespace Minio
         {
             args?.Validate();
 
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             var versioningResponse = new GetVersioningResponse(responseResult.StatusCode, responseResult.Content);
             return versioningResponse.VersioningConfig;
@@ -312,9 +316,9 @@ namespace Minio
         public async Task SetVersioningAsync(SetVersioningArgs args, CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var response = await ExecuteTaskAsync(NoErrorHandlers,
-                requestMessageBuilder, cancellationToken).ConfigureAwait(false);
+                requestMessageBuilder, cancellationToken);
         }
 
         /// <summary>
@@ -338,58 +342,70 @@ namespace Minio
         public IObservable<Item> ListObjectsAsync(ListObjectsArgs args, CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            return Observable.Create<Item>(
-                async (obs, ct) =>
-                {
-                    var isRunning = true;
-                    var delimiter = args.Recursive ? string.Empty : "/";
-                    var marker = string.Empty;
-                    uint count = 0;
-                    var versionIdMarker = string.Empty;
-                    var nextContinuationToken = string.Empty;
-                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ct);
-                    while (isRunning)
-                    {
-                        var goArgs = new GetObjectListArgs()
-                            .WithBucket(args.BucketName)
-                            .WithPrefix(args.Prefix)
-                            .WithDelimiter(delimiter)
-                            .WithVersions(args.Versions)
-                            .WithContinuationToken(nextContinuationToken)
-                            .WithMarker(marker)
-                            .WithListObjectsV1(!args.UseV2)
-                            .WithHeaders(args.Headers)
-                            .WithVersionIdMarker(versionIdMarker);
-                        if (args.Versions)
-                        {
-                            var objectList = await GetObjectVersionsListAsync(goArgs, cts.Token).ConfigureAwait(false);
-                            var listObjectsItemResponse = new ListObjectVersionResponse(args, objectList, obs);
-                            if (objectList.Item2.Count == 0 && count == 0) return;
-
-                            obs = listObjectsItemResponse.ItemObservable;
-                            marker = listObjectsItemResponse.NextKeyMarker;
-                            versionIdMarker = listObjectsItemResponse.NextVerMarker;
-                            isRunning = objectList.Item1.IsTruncated;
-                        }
-                        else
-                        {
-                            var objectList = await GetObjectListAsync(goArgs, cts.Token).ConfigureAwait(false);
-                            if (objectList.Item2.Count == 0 && objectList.Item1.KeyCount.Equals("0") && count == 0)
-                                return;
-
-                            var listObjectsItemResponse = new ListObjectsItemResponse(args, objectList, obs);
-                            marker = listObjectsItemResponse.NextMarker;
-                            isRunning = objectList.Item1.IsTruncated;
-                            nextContinuationToken = objectList.Item1.IsTruncated
-                                ? objectList.Item1.NextContinuationToken
-                                : string.Empty;
-                        }
-
-                        cts.Token.ThrowIfCancellationRequested();
-                        count++;
-                    }
-                }
+            return Observable.FromCoroutine<Item>(
+                (observer, token) => ItemObservableAsync(observer, token, args, cancellationToken).ToCoroutine()
             );
+        }
+
+        private async UniTask ItemObservableAsync(IObserver<Item> obs, CancellationToken ct,
+            ListObjectsArgs args, CancellationToken cancellationToken)
+        {
+            var isRunning = true;
+            var delimiter = args.Recursive ? string.Empty : "/";
+            var marker = string.Empty;
+            uint count = 0;
+            var versionIdMarker = string.Empty;
+            var nextContinuationToken = string.Empty;
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ct);
+            while (isRunning)
+            {
+                var goArgs = new GetObjectListArgs()
+                    .WithBucket(args.BucketName)
+                    .WithPrefix(args.Prefix)
+                    .WithDelimiter(delimiter)
+                    .WithVersions(args.Versions)
+                    .WithContinuationToken(nextContinuationToken)
+                    .WithMarker(marker)
+                    .WithListObjectsV1(!args.UseV2)
+                    .WithHeaders(args.Headers)
+                    .WithVersionIdMarker(versionIdMarker);
+                if (args.Versions)
+                {
+                    var objectList = await GetObjectVersionsListAsync(goArgs, cts.Token);
+                    var listObjectsItemResponse = new ListObjectVersionResponse(args, objectList, obs);
+                    if (objectList.Item2.Count == 0 && count == 0) return;
+
+                    obs = listObjectsItemResponse.ItemObservable;
+                    marker = listObjectsItemResponse.NextKeyMarker;
+                    versionIdMarker = listObjectsItemResponse.NextVerMarker;
+                    isRunning = objectList.Item1.IsTruncated;
+                }
+                else
+                {
+                    var objectList = await GetObjectListAsync(goArgs, cts.Token);
+                    Debug.Log($"Passed objectList: {objectList}");
+                    if (objectList.Item2.Count == 0 && objectList.Item1.KeyCount.Equals("0") && count == 0)
+                    {
+                        Debug.Log($"Empty objectList :(");
+                        obs.OnCompleted();
+                        return;
+                    }
+
+                    var listObjectsItemResponse = new ListObjectsItemResponse(args, objectList, obs);
+                    Debug.Log($"Created listObjectsItemResponse: {listObjectsItemResponse}");
+
+                    marker = listObjectsItemResponse.NextMarker;
+                    isRunning = objectList.Item1.IsTruncated;
+                    nextContinuationToken = objectList.Item1.IsTruncated
+                        ? objectList.Item1.NextContinuationToken
+                        : string.Empty;
+                }
+
+                cts.Token.ThrowIfCancellationRequested();
+                count++;
+            }
+            
+            obs.OnCompleted();
         }
 
         /// <summary>
@@ -406,9 +422,9 @@ namespace Minio
         {
             ArgumentNullExceptionUtil.ThrowIfNull(args);
 
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             var getBucketNotificationsResponse =
                 new GetBucketNotificationsResponse(responseResult.StatusCode, responseResult.Content);
             return getBucketNotificationsResponse.BucketNotificationConfiguration;
@@ -432,9 +448,9 @@ namespace Minio
         {
             ArgumentNullExceptionUtil.ThrowIfNull(args);
 
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -452,9 +468,9 @@ namespace Minio
         {
             ArgumentNullExceptionUtil.ThrowIfNull(args);
 
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -478,19 +494,24 @@ namespace Minio
                 throw new ArgumentException(
                     "Listening for bucket notification is specific only to `minio` server endpoints");
 
-            return Observable.Create<MinioNotificationRaw>(
-                async (obs, ct) =>
-                {
-                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ct);
-                    var requestMessageBuilder =
-                        await CreateRequest(args).ConfigureAwait(false);
-                    args = args.WithNotificationObserver(obs)
-                        .WithEnableTrace(trace);
-                    using var response =
-                        await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                            .ConfigureAwait(false);
-                    cts.Token.ThrowIfCancellationRequested();
-                });
+            return Observable.FromCoroutine<MinioNotificationRaw>((observer, token) =>
+                MinioNotificationObservableAsync(observer, token, args, cancellationToken).ToCoroutine());
+        }
+
+        private async UniTask MinioNotificationObservableAsync(IObserver<MinioNotificationRaw> obs,
+            CancellationToken ct,
+            ListenBucketNotificationsArgs args, CancellationToken cancellationToken)
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ct);
+            var requestMessageBuilder =
+                await CreateRequest(args);
+            args = args.WithNotificationObserver(obs)
+                .WithEnableTrace(trace);
+            using var response =
+                await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
+                    ;
+            cts.Token.ThrowIfCancellationRequested();
+            obs.OnCompleted();
         }
 
         /// <summary>
@@ -507,9 +528,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             var getBucketNotificationsResponse =
                 new GetBucketTagsResponse(responseResult.StatusCode, responseResult.Content);
             return getBucketNotificationsResponse.BucketTags;
@@ -530,9 +551,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -549,9 +570,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             var getBucketEncryptionResponse =
                 new GetBucketEncryptionResponse(responseResult.StatusCode, responseResult.Content);
             return getBucketEncryptionResponse.BucketEncryptionConfiguration;
@@ -572,9 +593,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -591,9 +612,9 @@ namespace Minio
         public async Task SetBucketTagsAsync(SetBucketTagsArgs args, CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -611,9 +632,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -635,9 +656,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -655,9 +676,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             var resp = new GetObjectLockConfigurationResponse(responseResult.StatusCode, responseResult.Content);
             return resp.LockConfiguration;
         }
@@ -678,9 +699,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -701,9 +722,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -720,9 +741,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             var response = new GetBucketLifecycleResponse(responseResult.StatusCode, responseResult.Content);
             return response.BucketLifecycle;
         }
@@ -742,9 +763,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -762,9 +783,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             var response = new GetBucketReplicationResponse(responseResult.StatusCode, responseResult.Content);
             return response.Config;
         }
@@ -787,9 +808,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -807,9 +828,9 @@ namespace Minio
             CancellationToken cancellationToken = default)
         {
             args?.Validate();
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var restResponse = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -850,9 +871,9 @@ namespace Minio
         {
             ArgumentNullExceptionUtil.ThrowIfNull(args);
 
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             var getPolicyResponse = new GetPolicyResponse(responseResult.StatusCode, responseResult.Content);
             return getPolicyResponse.PolicyJsonString;
         }
@@ -870,9 +891,9 @@ namespace Minio
         {
             ArgumentNullExceptionUtil.ThrowIfNull(args);
 
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -888,9 +909,9 @@ namespace Minio
         {
             ArgumentNullExceptionUtil.ThrowIfNull(args);
 
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -905,10 +926,13 @@ namespace Minio
         private async Task<Tuple<ListBucketResult, List<Item>>> GetObjectListAsync(GetObjectListArgs args,
             CancellationToken cancellationToken = default)
         {
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
-            using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+            Debug.Log("Creating request first...");
+            var requestMessageBuilder = await CreateRequest(args);
+            Debug.Log("Waiting for response...");
+            using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken);
+            Debug.Log("Got response! Time to do smth...");
             var getObjectsListResponse = new GetObjectsListResponse(responseResult.StatusCode, responseResult.Content);
+            Debug.Log($"Got getObjectsListResponse: {getObjectsListResponse}");
             return getObjectsListResponse.ObjectsTuple;
         }
 
@@ -924,9 +948,9 @@ namespace Minio
         private async Task<Tuple<ListVersionsResult, List<Item>>> GetObjectVersionsListAsync(GetObjectListArgs args,
             CancellationToken cancellationToken = default)
         {
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var responseResult = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             var getObjectsVersionsListResponse =
                 new GetObjectsVersionsListResponse(responseResult.StatusCode, responseResult.Content);
             return getObjectsVersionsListResponse.ObjectsTuple;

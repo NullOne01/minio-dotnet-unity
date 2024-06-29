@@ -105,7 +105,7 @@ namespace Minio.Credentials
         internal virtual async Task<HttpRequestMessageBuilder> BuildRequest()
         {
             if (Client == null) throw new InvalidOperationException("MinioClient is not set in AssumeRoleBaseProvider");
-            var reqBuilder = await Client.CreateRequest(HttpMethod.Post).ConfigureAwait(false);
+            var reqBuilder = await Client.CreateRequest(HttpMethod.Post);
             reqBuilder.AddQueryParameter("Action", Action);
             reqBuilder.AddQueryParameter("Version", "2011-06-15");
             if (!string.IsNullOrWhiteSpace(Policy)) reqBuilder.AddQueryParameter("Policy", Policy);
@@ -119,14 +119,14 @@ namespace Minio.Credentials
         {
             if (Credentials?.AreExpired() == false) return Credentials;
 
-            var requestBuilder = await BuildRequest().ConfigureAwait(false);
+            var requestBuilder = await BuildRequest();
             if (Client != null)
             {
                 ResponseResult responseMessage = null;
                 try
                 {
                     responseMessage =
-                        await Client.ExecuteTaskAsync(NoErrorHandlers, requestBuilder).ConfigureAwait(false);
+                        await Client.ExecuteTaskAsync(NoErrorHandlers, requestBuilder);
                 }
                 finally
                 {

@@ -20,6 +20,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using UnityEngine;
 
 namespace Minio
 {
@@ -87,6 +88,8 @@ namespace Minio
         /// <param name="bucketName"></param>
         internal static async Task<string> Update(MinioClient client, string bucketName)
         {
+            Debug.Log("Start Update task...");
+
             string region = null;
 
             if (bucketName != null && client.AccessKey != null
@@ -99,8 +102,11 @@ namespace Minio
 
                 var requestBuilder = new HttpRequestMessageBuilder(HttpMethod.Get, requestUrl, path);
                 requestBuilder.AddQueryParameter("location", "");
+                Debug.Log("Sending location shit...");
                 using var response =
-                    await client.ExecuteTaskAsync(client.NoErrorHandlers, requestBuilder).ConfigureAwait(false);
+                    await client.ExecuteTaskAsync(client.NoErrorHandlers, requestBuilder);
+
+                Debug.Log($"Got response from Update: {response}");
 
                 if (response != null && HttpStatusCode.OK.Equals(response.StatusCode))
                 {
@@ -124,6 +130,8 @@ namespace Minio
                 // Add the new location.
                 Instance.Add(bucketName, region);
             }
+
+            Debug.Log($"Region should be done: {region}");
 
             return region;
         }

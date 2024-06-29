@@ -20,9 +20,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Minio.DataModel;
 using Minio.Exceptions;
 using Minio.Helper;
+using UnityEngine;
 
 namespace Minio
 {
@@ -36,6 +38,7 @@ namespace Minio
         private async Task<ObjectStat> getObjectHelper(GetObjectArgs args,
             CancellationToken cancellationToken = default)
         {
+            Debug.Log("getObjectHelper");
             // StatObject is called to both verify the existence of the object and return it with GetObject.
             // NOTE: This avoids writing the error body to the action stream passed (Do not remove).
 
@@ -50,13 +53,14 @@ namespace Minio
                 .WithServerSideEncryption(args.SSE)
                 .WithHeaders(args.Headers);
             if (args.OffsetLengthSet) statArgs.WithOffsetAndLength(args.ObjectOffset, args.ObjectLength);
-            var objStat = await StatObjectAsync(statArgs, cancellationToken).ConfigureAwait(false);
+            var objStat = await StatObjectAsync(statArgs, cancellationToken);
+            Debug.Log("args?.Validate(); if (args.FileName != null)");
             args?.Validate();
             if (args.FileName != null)
-                await getObjectFileAsync(args, objStat, cancellationToken).ConfigureAwait(false);
+                await getObjectFileAsync(args, objStat, cancellationToken);
             else if (args.CallBack is not null)
-                await getObjectStreamAsync(args, objStat, args.CallBack, cancellationToken).ConfigureAwait(false);
-            else await getObjectStreamAsync(args, objStat, args.FuncCallBack, cancellationToken).ConfigureAwait(false);
+                await getObjectStreamAsync(args, objStat, args.CallBack, cancellationToken);
+            else await getObjectStreamAsync(args, objStat, args.FuncCallBack, cancellationToken);
             return objStat;
         }
 
@@ -69,6 +73,7 @@ namespace Minio
         private Task getObjectFileAsync(GetObjectArgs args, ObjectStat objectStat,
             CancellationToken cancellationToken = default)
         {
+            Debug.Log("getObjectFileAsync");
             var length = objectStat.Size;
             var etag = objectStat.ETag;
 
@@ -84,7 +89,10 @@ namespace Minio
                 async (Stream stream, CancellationToken cancellationToken) =>
                 {
                     using var dest = new FileStream(tempFileName, FileMode.Create, FileAccess.Write);
-                    await stream.CopyToAsync(dest, cancellationToken).ConfigureAwait(false);
+                    Debug.Log("await stream.CopyToAsync(dest, cancellationToken)");
+                    // TODO(nullone): CopyToAsync was used here before, but WebGL doesn't support it :/
+                    stream.CopyTo(dest);
+                    Debug.Log("AFTER: await stream.CopyToAsync(dest, cancellationToken)");
                 };
 
 #pragma warning disable IDISP001 // Dispose created
@@ -93,7 +101,9 @@ namespace Minio
             cts.CancelAfter(TimeSpan.FromSeconds(15));
             args.WithCallbackStream(async (stream, cancellationToken) =>
             {
-                await callbackAsync(stream, cts.Token).ConfigureAwait(false);
+                Debug.Log("await callbackAsync(stream, cts.Token);");
+                await callbackAsync(stream, cts.Token);
+                Debug.Log("Utils.MoveWithReplace(tempFileName, args.FileName);");
                 Utils.MoveWithReplace(tempFileName, args.FileName);
             });
             return getObjectStreamAsync(args, objectStat, null, cancellationToken);
@@ -112,9 +122,10 @@ namespace Minio
         private async Task getObjectStreamAsync(GetObjectArgs args, ObjectStat objectStat, Action<Stream> cb,
             CancellationToken cancellationToken = default)
         {
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            Debug.Log("getObjectStreamAsync");
+            var requestMessageBuilder = await CreateRequest(args);
             using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
         }
 
         /// <summary>
@@ -135,9 +146,10 @@ namespace Minio
             Func<Stream, CancellationToken, Task> cb,
             CancellationToken cancellationToken = default)
         {
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
-            using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+            Debug.Log("var requestMessageBuilder = await CreateRequest(args);");
+            var requestMessageBuilder = await CreateRequest(args);
+            Debug.Log("using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken);");
+            using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken);
         }
 
         /// <summary>
@@ -158,9 +170,9 @@ namespace Minio
         private async Task<IList<DeleteError>> removeObjectsAsync(RemoveObjectsArgs args,
             CancellationToken cancellationToken)
         {
-            var requestMessageBuilder = await CreateRequest(args).ConfigureAwait(false);
+            var requestMessageBuilder = await CreateRequest(args);
             using var response = await ExecuteTaskAsync(NoErrorHandlers, requestMessageBuilder, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             var removeObjectsResponse = new RemoveObjectsResponse(response.StatusCode, response.Content);
             return removeObjectsResponse.DeletedObjectsResult.errorList;
         }
@@ -186,7 +198,7 @@ namespace Minio
             var iterArgs = new RemoveObjectsArgs()
                 .WithBucket(args.BucketName)
                 .WithObjectsVersions(objVersions);
-            var errorsList = await removeObjectsAsync(iterArgs, cancellationToken).ConfigureAwait(false);
+            var errorsList = await removeObjectsAsync(iterArgs, cancellationToken);
             fullErrorsList.AddRange(errorsList);
             return fullErrorsList;
         }
@@ -208,11 +220,11 @@ namespace Minio
         private async Task<IList<DeleteError>> callRemoveObjects(RemoveObjectsArgs args, IList<string> objNames,
             List<DeleteError> fullErrorsList, CancellationToken cancellationToken)
         {
-            // var requestMessageBuilder = await this.CreateRequest(args).ConfigureAwait(false);
+            // var requestMessageBuilder = await this.CreateRequest(args);
             var iterArgs = new RemoveObjectsArgs()
                 .WithBucket(args.BucketName)
                 .WithObjects(objNames);
-            var errorsList = await removeObjectsAsync(iterArgs, cancellationToken).ConfigureAwait(false);
+            var errorsList = await removeObjectsAsync(iterArgs, cancellationToken);
             fullErrorsList.AddRange(errorsList);
             return fullErrorsList;
         }
@@ -242,7 +254,7 @@ namespace Minio
             if (args.ObjectNamesVersions.Count <= 1000)
             {
                 fullErrorsList.AddRange(await callRemoveObjectVersions(args, args.ObjectNamesVersions, fullErrorsList,
-                    cancellationToken).ConfigureAwait(false));
+                    cancellationToken));
                 return fullErrorsList;
             }
 
@@ -252,7 +264,7 @@ namespace Minio
             while (delVersionNextIndex <= args.ObjectNamesVersions.Count)
             {
                 var errorList = await callRemoveObjectVersions(args, curItemList, fullErrorsList, cancellationToken)
-                    .ConfigureAwait(false);
+                    ;
                 if (delVersionNextIndex == args.ObjectNamesVersions.Count)
                     break;
                 deletedCount += curItemList.Count;
@@ -307,7 +319,7 @@ namespace Minio
                 {
                     fullErrorsList =
                         await callRemoveObjects(args, iterObjects, fullErrorsList.ToList(), cancellationToken)
-                            .ConfigureAwait(false);
+                            ;
                     iterObjects.Clear();
                     i = 0;
                 }
@@ -315,7 +327,7 @@ namespace Minio
 
             if (iterObjects.Count > 0)
                 fullErrorsList = await callRemoveObjects(args, iterObjects, fullErrorsList.ToList(), cancellationToken)
-                    .ConfigureAwait(false);
+                    ;
             return fullErrorsList;
         }
     }
