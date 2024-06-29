@@ -2,6 +2,8 @@
 
 This repo is fork of MinIO client but HTTP library dependencies are replaced with UnityWebRequest methods. Now Windows, WebGL (and probably other) builds are supported. 
 
+Warning: multipart probably not working...
+
 # MinIO Client SDK for .NET  [![Slack](https://slack.min.io/slack?type=svg)](https://slack.min.io)
 
 MinIO Client SDK provides higher level APIs for MinIO and Amazon S3 compatible cloud storage services.For a complete
